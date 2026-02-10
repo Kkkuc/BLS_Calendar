@@ -2,6 +2,12 @@
 
 public class MatchData(string host, string guest, int hostSetsResult, int guestSetsResult, int round, string status, DateTime? matchDate, string court)
 {
+    public string Host => host;
+    public string Guest => guest;
+    public int HostSetsResult => hostSetsResult;
+    public int GuestSetsResult => guestSetsResult;
+    public int Round => round;
+    public string Status => status;
     public DateTime MatchDate => matchDate ?? DateTime.Now;
     public bool IsUnplayed() => status == string.Empty;
     
@@ -22,5 +28,7 @@ public class MatchData(string host, string guest, int hostSetsResult, int guestS
                $"{round}\n" +
                $"{court}\n";
     }
-    
+
+    public string GenerateDescription() =>
+        $"Court: {court}";
 }

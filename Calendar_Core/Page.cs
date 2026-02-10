@@ -99,7 +99,7 @@ public partial class Page
                         );
                     
                     _allMatches.Add(matchData);
-                    if (status == string.Empty)
+                    if (status == string.Empty && date != null)
                     {
                         _unplayedMatches.Add(matchData);
                     }
