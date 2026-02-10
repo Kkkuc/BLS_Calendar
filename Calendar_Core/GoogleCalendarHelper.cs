@@ -13,8 +13,12 @@ public class GoogleCalendarHelper
     private const string ApplicationName = "My Calendar App";
     
     [Obsolete("Obsolete")]
-    public async Task AddEvent(DateTime eventDate, string eventTitle)
+    public async Task AddEvent(DateTime startDate,
+        string title,
+        string? description = null,
+        DateTime? endDate = null)
     {
+        endDate ??= startDate.AddHours(2);
         var credential = await GetCredentialAsync();
 
         var service = new CalendarService(new BaseClientService.Initializer
@@ -25,15 +29,16 @@ public class GoogleCalendarHelper
 
         var newEvent = new Event
         {
-            Summary = eventTitle,
+            Summary = title,
+            Description = description,
             Start = new EventDateTime
             {
-                DateTime = eventDate,
+                DateTime = startDate,
                 TimeZone = "Europe/Warsaw"
             },
             End = new EventDateTime
             {
-                DateTime = eventDate.AddHours(1),
+                DateTime = endDate,
                 TimeZone = "Europe/Warsaw"
             }
         };
