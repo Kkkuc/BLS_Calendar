@@ -1,32 +1,23 @@
+using System.Reflection;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 
-namespace Calendar_CLI;
+namespace Calendar_Core;
 
 public class GoogleCalendarHelper
 {
     private readonly string[] _scopes = [CalendarService.Scope.Calendar];
     private const string ApplicationName = "My Calendar App";
     
-    public void AddEvent(DateTime eventDate, string eventTitle)
+    [Obsolete("Obsolete")]
+    public async Task AddEvent(DateTime eventDate, string eventTitle)
     {
-        UserCredential credential;
+        var credential = await GetCredentialAsync();
 
-        using (var stream =
-               new FileStream("../../../../credentials.json", FileMode.Open, FileAccess.Read))
-        {
-            credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                GoogleClientSecrets.FromStream(stream).Secrets,
-                _scopes,
-                "user",
-                CancellationToken.None,
-                new FileDataStore("token.json", true)).Result;
-        }
-
-        var service = new CalendarService(new BaseClientService.Initializer()
+        var service = new CalendarService(new BaseClientService.Initializer
         {
             HttpClientInitializer = credential,
             ApplicationName = ApplicationName,
@@ -47,7 +38,7 @@ public class GoogleCalendarHelper
             }
         };
 
-        service.Events.Insert(newEvent, "primary").Execute();
+        await service.Events.Insert(newEvent, "primary").ExecuteAsync();
     }
     
     public void Logout()
@@ -58,5 +49,32 @@ public class GoogleCalendarHelper
         {
             Directory.Delete(tokenPath, true);
         }
+    }
+    
+    private static Stream GetCredentialsStream()
+    {
+        var assembly = Assembly.GetExecutingAssembly();
+        var resourceName = assembly
+            .GetManifestResourceNames()
+            .FirstOrDefault(n => n.EndsWith("credentials.json"));
+
+        if (resourceName == null)
+            throw new InvalidOperationException("Nie znaleziono credentials.json jako zasobu");
+
+        return assembly.GetManifestResourceStream(resourceName)!;
+    }
+
+
+    private async Task<UserCredential> GetCredentialAsync()
+    {
+        await using var stream = GetCredentialsStream();
+
+        return await GoogleWebAuthorizationBroker.AuthorizeAsync(
+            (await GoogleClientSecrets.FromStreamAsync(stream)).Secrets,
+            _scopes,
+            "user",
+            CancellationToken.None,
+            new FileDataStore("token.json", true)
+        );
     }
 }
