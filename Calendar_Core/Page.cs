@@ -9,6 +9,9 @@ public partial class Page
     private readonly HttpClient _client;
     private readonly List<MatchData> _allMatches = [];
     private readonly List<MatchData> _unplayedMatches = [];
+    
+    public List<MatchData> AllMatches => _allMatches;
+    public List<MatchData> UnplayedMatches => _unplayedMatches;
 
     public Page(string url)
     {
@@ -34,7 +37,6 @@ public partial class Page
         }
     }
     
-
     private async Task GetContent()
     {
         try

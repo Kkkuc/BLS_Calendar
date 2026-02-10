@@ -2,6 +2,7 @@
 
 public class MatchData(string host, string guest, int hostSetsResult, int guestSetsResult, int round, string status, DateTime? matchDate, string court)
 {
+    public DateTime MatchDate => matchDate ?? DateTime.Now;
     public bool IsUnplayed() => status == string.Empty;
     
     public override string ToString()
