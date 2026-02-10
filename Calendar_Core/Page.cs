@@ -1,20 +1,41 @@
+
 namespace Calendar_Core;
 using System.Net;
 using HtmlAgilityPack;
 
-public class Page
+public partial class Page
 {
-    private string _url;
-    private HttpClient _client;
+    private readonly string _url;
+    private readonly HttpClient _client;
+    private readonly List<MatchData> _allMatches = [];
+    private readonly List<MatchData> _unplayedMatches = [];
 
     public Page(string url)
     {
         _url = url;
         _client = new HttpClient();
         _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+        GetContent().Wait();
     }
 
-    public async Task GetContent()
+    public void ShowAllMatches()
+    {
+        foreach (var match in _allMatches)
+        {
+            Console.WriteLine(match);
+        }
+    }
+
+    public void ShowUnplayedMatches()
+    {
+        foreach (var match in _unplayedMatches)
+        {
+            Console.WriteLine(match);
+        }
+    }
+    
+
+    private async Task GetContent()
     {
         try
         {
@@ -28,37 +49,58 @@ public class Page
             {
                 try
                 {
-                    // 1. Gospodarz : Gość (Indeks 0)
-                    var pary = WebUtility.HtmlDecode(cells[0].InnerText).Trim();
-
-                    // 2. Status W/P (Indeks 1)
+                    var pairs = WebUtility.HtmlDecode(cells[0].InnerText).Trim();
+                    pairs = string.Concat(pairs.Where(c => !char.IsWhiteSpace(c)));
+                    var (host, guest) = SplitByColon(pairs, ':');
+                    
                     var status = WebUtility.HtmlDecode(cells[1].InnerText).Trim();
-
-                    // 3. Wynik i Data (Indeks 2)
-                    // Używamy Replace, aby rozdzielić datę od wyniku, jeśli są w osobnych liniach HTML
-                    var wynikIDataRaw = WebUtility.HtmlDecode(cells[2].InnerHtml)
+                    
+                    var resultIDataRaw = WebUtility.HtmlDecode(cells[2].InnerHtml)
                         .Replace("<br>", "|")
                         .Replace("<br/>", "|");
-                    var czesci = wynikIDataRaw.Split('|');
-                    var wynik = czesci[0].Trim();
-                    var data = czesci.Length > 1 ? czesci[1].Trim() : "Brak daty";
+                    resultIDataRaw = MyRegex().Replace(resultIDataRaw, "").Trim();
+                    var parts = resultIDataRaw.Split('|');
+                    var result = parts[0].Trim();
+                    var date = parts.Length > 1 ? parts[1].Trim() : null;
+                    if (parts.Length == 1)
+                    {
+                        result = null;
+                        date = parts[0].Trim();
+                    }
 
-                    // 4. Kolejka / Rozgrywki (Indeks 3)
-                    var infoRozgrywki = WebUtility.HtmlDecode(cells[3].InnerText).Trim();
-
-                    // 5. Boisko (Indeks 4)
-                    var boisko = WebUtility.HtmlDecode(cells[4].InnerText).Trim();
+                    var hostScore = 0;
+                    var guestScore = 0;
+                    if (result != null)
+                    {
+                        result = string.Concat(result.Where(c => !char.IsWhiteSpace(c)));
+                        var (hostScoreHelp, guestScoreHelp) = SplitByColon(result, '-');
+                        hostScore = int.Parse(hostScoreHelp);
+                        guestScore = int.Parse(guestScoreHelp);
+                    }
+                    
+                    var round = int.Parse(WebUtility.HtmlDecode(cells[3].InnerText).Trim());
+                    var court = LimitToSpace(WebUtility.HtmlDecode(cells[4].InnerText).Trim(), 2);
 
                     // 6. Link do meczu (Indeks 5)
-                    var linkNode = cells[5].SelectSingleNode(".//a");
-                    linkNode.GetAttributeValue("href", "");
-
-                    // Wyświetlanie wyników
-                    Console.WriteLine($"Mecz: {pary}");
-                    Console.WriteLine($"Rozgrywki: {infoRozgrywki} | Status: {status}");
-                    Console.WriteLine($"Wynik: {wynik} | Data: {data}");
-                    Console.WriteLine($"Miejsce: {boisko}");
-                    Console.WriteLine(new string('-', 40));
+                    //var linkNode = cells[5].SelectSingleNode(".//a");
+                    //linkNode.GetAttributeValue("href", "");
+                    var matchData = new MatchData
+                    (
+                        host, 
+                        guest, 
+                        hostScore, 
+                        guestScore, 
+                        round, 
+                        status,
+                        DateTime.Parse(date!), 
+                        court
+                        );
+                    
+                    _allMatches.Add(matchData);
+                    if (status == string.Empty)
+                    {
+                        _unplayedMatches.Add(matchData);
+                    }
                 }
                 catch (Exception)
                 {
@@ -71,4 +113,30 @@ public class Page
             Console.WriteLine($"Błąd podczas pobierania danych: {ex.Message}");
         }
     }
+    
+    private static (string Left, string Right) SplitByColon(string? input, char separator)
+    {
+        if (string.IsNullOrEmpty(input))
+            return (null, null)!;
+
+        var parts = input.Split(separator, 2); // 2 = maksymalnie dwa elementy
+
+        var left = parts.Length > 0 ? parts[0] : string.Empty;
+        var right = parts.Length > 1 ? parts[1] : string.Empty;
+
+        return (left, right);
+    }
+
+    private static string LimitToSpace(string input, int numberOfSpaces)
+    {
+        var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+        return parts.Length >= numberOfSpaces ? 
+            string.Join(" ", parts.Take(numberOfSpaces)) : 
+            input; 
+    }
+
+
+    [System.Text.RegularExpressions.GeneratedRegex("<.*?>")]
+    private static partial System.Text.RegularExpressions.Regex MyRegex();
 }
