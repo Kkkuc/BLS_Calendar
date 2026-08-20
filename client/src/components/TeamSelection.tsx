@@ -3,9 +3,10 @@ import type { Team } from '../types';
 
 interface TeamSelectionProps {
     onSelectTeam: (team: Team) => void;
+    selectedTeamId?: number | null;
 }
 
-export default function TeamSelection({ onSelectTeam }: TeamSelectionProps) {
+export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSelectionProps) {
     const [teams, setTeams] = useState<Team[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
@@ -27,6 +28,12 @@ export default function TeamSelection({ onSelectTeam }: TeamSelectionProps) {
 
                 const data: Team[] = await response.json();
                 setTeams(data);
+
+                // Zaznacz drużynę, jeśli jej ID przyszło w propsach z rodzica
+                if (selectedTeamId) {
+                    const found = data.find((t) => t.id === selectedTeamId);
+                    if (found) setSelectedTeam(found);
+                }
             } catch (err: any) {
                 console.error("Błąd pobierania drużyn:", err);
                 setError("Nie udało się pobrać listy drużyn z serwera.");
@@ -36,17 +43,33 @@ export default function TeamSelection({ onSelectTeam }: TeamSelectionProps) {
         }
 
         loadTeams();
-    }, []);
+    }, [selectedTeamId]);
 
     const filteredTeams = useMemo(() => {
         return teams.filter((team) => {
-            const matchesLeague = team.league ? team.league === selectedLeague : true;
+            // Bezpieczne porównanie ligi (niezależnie czy w API jest string "1", number 1 czy "I Liga")
+            const matchesLeague = team.league
+                ? team.league.toString().includes(selectedLeague.toString())
+                : true;
+
             const matchesSearch = team.name
                 .toLowerCase()
-                .includes(searchQuery.toLowerCase());
+                .includes(searchQuery.toLowerCase().trim());
+
             return matchesLeague && matchesSearch;
         });
     }, [teams, selectedLeague, searchQuery]);
+
+    const handleTeamClick = (team: Team) => {
+        setSelectedTeam(team);
+    };
+
+    const handleSubmit = () => {
+        if (selectedTeam) {
+            // Wywołujemy przekazanie do rodzica (np. App.tsx), co uruchomi MatchList
+            onSelectTeam(selectedTeam);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -69,6 +92,7 @@ export default function TeamSelection({ onSelectTeam }: TeamSelectionProps) {
         <div className="card">
             <div className="league-switch">
                 <button
+                    type="button"
                     className={`tab-button ${selectedLeague === 1 ? 'active' : ''}`}
                     onClick={() => {
                         setSelectedLeague(1);
@@ -78,6 +102,7 @@ export default function TeamSelection({ onSelectTeam }: TeamSelectionProps) {
                     I Liga
                 </button>
                 <button
+                    type="button"
                     className={`tab-button ${selectedLeague === 2 ? 'active' : ''}`}
                     onClick={() => {
                         setSelectedLeague(2);
@@ -99,16 +124,19 @@ export default function TeamSelection({ onSelectTeam }: TeamSelectionProps) {
 
             <div className="team-list">
                 {filteredTeams.length > 0 ? (
-                    filteredTeams.map((team) => (
-                        <div
-                            key={team.id}
-                            className={`team-item ${selectedTeam?.id === team.id ? 'selected' : ''}`}
-                            onClick={() => setSelectedTeam(team)}
-                        >
-                            <span>{team.name}</span>
-                            {selectedTeam?.id === team.id && <span className="badge">Wybrano</span>}
-                        </div>
-                    ))
+                    filteredTeams.map((team) => {
+                        const isSelected = selectedTeam?.id === team.id;
+                        return (
+                            <div
+                                key={team.id}
+                                className={`team-item ${isSelected ? 'selected' : ''}`}
+                                onClick={() => handleTeamClick(team)}
+                            >
+                                <span>{team.name}</span>
+                                {isSelected && <span className="badge">Wybrano</span>}
+                            </div>
+                        );
+                    })
                 ) : (
                     <div className="empty-state">Brak aktywnych drużyn do wyświetlenia.</div>
                 )}
@@ -116,9 +144,10 @@ export default function TeamSelection({ onSelectTeam }: TeamSelectionProps) {
 
             <div className="action-footer">
                 <button
+                    type="button"
                     className="submit-btn"
                     disabled={!selectedTeam}
-                    onClick={() => selectedTeam && onSelectTeam(selectedTeam)}
+                    onClick={handleSubmit}
                 >
                     {selectedTeam ? `Pobierz mecze dla: ${selectedTeam.name}` : 'Wybierz drużynę'}
                 </button>
