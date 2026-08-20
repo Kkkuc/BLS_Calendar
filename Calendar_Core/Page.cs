@@ -1,4 +1,7 @@
 
+using System.Text.RegularExpressions;
+using System.Web;
+
 namespace Calendar_Core;
 using System.Net;
 using HtmlAgilityPack;
@@ -138,7 +141,56 @@ public partial class Page
             input; 
     }
 
+    public static async Task<List<Team>> FetchAllTeamsAsync(int maxId = 60)
+    {
+        const string baseUrl = "https://blssiatkowka.ligspace.pl/index.php";
+        using var client = new HttpClient();
+        client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
 
-    [System.Text.RegularExpressions.GeneratedRegex("<.*?>")]
-    private static partial System.Text.RegularExpressions.Regex MyRegex();
+        var tasks = Enumerable.Range(1, maxId).Select(async id =>
+        {
+            var profileUrl = $"{baseUrl}?mod=Teams&ac=TeamSchedule&t_id={id}";
+            try
+            {
+                var html = await client.GetStringAsync(profileUrl);
+                var doc = new HtmlDocument();
+                doc.LoadHtml(html);
+
+                // Szukamy h2 bezpośrednio w kontenerze profile-head lub po prostu h2 w sekcji main
+                var nameNode = doc.DocumentNode.SelectSingleNode("//div[@id='main']//h2");
+
+                var cleanName = HttpUtility.HtmlDecode(nameNode.InnerText).Trim();
+
+                // Ignorujemy puste wartości i komunikaty o braku zespołu
+                if (string.IsNullOrWhiteSpace(cleanName) || 
+                    cleanName.Equals("Błąd", StringComparison.OrdinalIgnoreCase) ||
+                    cleanName.Equals("Najnowsze wiadomości", StringComparison.OrdinalIgnoreCase) || // <--- TUTAJ DDAJEMY WALIDACJĘ
+                    cleanName.Contains("Szanowni użytkownicy", StringComparison.OrdinalIgnoreCase))
+                {
+                    return null;
+                }
+
+                return new Team
+                {
+                    Id = id,
+                    Name = cleanName,
+                    Url = profileUrl
+                };
+            }
+            catch
+            {
+                // Pomiń brakujące/błędne ID
+            }
+
+            return null;
+        });
+
+        var results = await Task.WhenAll(tasks);
+
+        return [.. results.Where(t => t != null).OrderBy(t => t.Name)]!;
+    }
+    
+
+    [GeneratedRegex("<.*?>")]
+    private static partial Regex MyRegex();
 }
