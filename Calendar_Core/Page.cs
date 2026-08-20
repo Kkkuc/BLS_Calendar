@@ -155,8 +155,7 @@ public partial class Page
                 var html = await client.GetStringAsync(profileUrl);
                 var doc = new HtmlDocument();
                 doc.LoadHtml(html);
-
-                // Szukamy h2 bezpośrednio w kontenerze profile-head lub po prostu h2 w sekcji main
+                
                 var nameNode = doc.DocumentNode.SelectSingleNode("//div[@id='main']//h2");
 
                 var cleanName = HttpUtility.HtmlDecode(nameNode.InnerText).Trim();
@@ -164,7 +163,7 @@ public partial class Page
                 // Ignorujemy puste wartości i komunikaty o braku zespołu
                 if (string.IsNullOrWhiteSpace(cleanName) || 
                     cleanName.Equals("Błąd", StringComparison.OrdinalIgnoreCase) ||
-                    cleanName.Equals("Najnowsze wiadomości", StringComparison.OrdinalIgnoreCase) || // <--- TUTAJ DDAJEMY WALIDACJĘ
+                    cleanName.Equals("Najnowsze wiadomości", StringComparison.OrdinalIgnoreCase) || 
                     cleanName.Contains("Szanowni użytkownicy", StringComparison.OrdinalIgnoreCase))
                 {
                     return null;
