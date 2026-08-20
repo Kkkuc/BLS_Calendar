@@ -1,4 +1,6 @@
+using System.Net;
 using System.Reflection;
+using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
@@ -13,9 +15,10 @@ public class GoogleCalendarHelper
     private const string ApplicationName = "My Calendar App";
     
     [Obsolete("Obsolete")]
-    public async Task AddEvent(DateTime startDate,
+    public async Task<bool> AddEvent(DateTime startDate,
         string title,
         string? description = null,
+        string? eventId = null,
         DateTime? endDate = null)
     {
         endDate ??= startDate.AddHours(2);
@@ -29,6 +32,7 @@ public class GoogleCalendarHelper
 
         var newEvent = new Event
         {
+            Id = eventId,
             Summary = title,
             Description = description,
             Start = new EventDateTime
@@ -43,29 +47,15 @@ public class GoogleCalendarHelper
             }
         };
 
-        await service.Events.Insert(newEvent, "primary").ExecuteAsync();
-    }
-    
-    public async Task<bool> EventExistsAsync(DateTime startDate, string title)
-    {
-        var credential = await GetCredentialAsync();
-
-        var service = new CalendarService(new BaseClientService.Initializer
+        try
         {
-            HttpClientInitializer = credential,
-            ApplicationName = ApplicationName,
-        });
-
-        // Szukamy wydarzeń dokładnie w tym samym dniu/godzinie (np. window +/- 1 minuta)
-        var request = service.Events.List("primary");
-        request.TimeMinDateTimeOffset = startDate.AddMinutes(-1);
-        request.TimeMaxDateTimeOffset = startDate.AddMinutes(1);
-        request.Q = title; // Filtrowanie po tytule
-
-        var events = await request.ExecuteAsync();
-
-        // Sprawdzamy, czy którekolwiek z dopasowanych wydarzeń ma identyczny tytuł
-        return events.Items.Any(e => e.Summary.Equals(title, StringComparison.OrdinalIgnoreCase));
+            await service.Events.Insert(newEvent, "primary").ExecuteAsync();
+            return true; 
+        }
+        catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.Conflict)
+        {
+            return false; 
+        }
     }
     
     public void Logout()
