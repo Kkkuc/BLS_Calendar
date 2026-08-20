@@ -16,14 +16,13 @@ internal static class Program
             return;
         }
 
+        teams = [.. teams.OrderBy(t => t.Name, StringComparer.CurrentCulture)];
         var selectedTeam = SelectTeamInteractively(teams);
         Console.Clear();
         Console.WriteLine($"Wybrano drużynę: {selectedTeam.Name}");
         Console.WriteLine($"Pobieranie terminarza z: {selectedTeam.Url}\n");
         
         var selectedTeamPage = new Page(selectedTeam.Url);
-
-        //var oldBoyePage = new Page("https://blssiatkowka.ligspace.pl/index.php?mod=Teams&ac=TeamSchedule&t_id=1");
 
         var calendar = new GoogleCalendarHelper();
         calendar.Logout();
@@ -44,31 +43,6 @@ internal static class Program
                 : $"[POMINIĘTO - JUŻ JEST] {title} ({match.MatchDate})");
         }
     }
-
-    /*private static async Task ShowTeams()
-    {
-        Console.WriteLine("Pobieranie listy drużyn z BLS...\n");
-        var teams = await Page.FetchAllTeamsAsync();
-
-        if (!teams.Any())
-        {
-            Console.WriteLine("Nie odnaleziono żadnych drużyn.");
-            return;
-        }
-
-        Console.WriteLine($"Znaleziono {teams.Count} drużyn:");
-        Console.WriteLine(new string('-', 85));
-        Console.WriteLine($"{"Lp.",-4} | {"Nazwa drużyny",-30} | {"Link do profilu"}");
-        Console.WriteLine(new string('-', 85));
-
-        for (int i = 0; i < teams.Count; i++)
-        {
-            var team = teams[i];
-            Console.WriteLine($"{i + 1,2}.  | {team.Name,-30} | {team.Url}");
-        }
-
-        Console.WriteLine(new string('-', 85));
-    }*/
 
     private static Team SelectTeamInteractively(List<Team> teams)
     {
