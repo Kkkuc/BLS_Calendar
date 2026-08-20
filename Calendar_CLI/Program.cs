@@ -7,7 +7,7 @@ internal static class Program
     [Obsolete("Obsolete")]
     private static async Task Main()
     {
-        Console.WriteLine("Pobieranie listy drużyn z BLS...\n");
+        /*Console.WriteLine("Pobieranie listy drużyn z BLS...\n");
         var teams = await Page.FetchAllTeamsAsync();
 
         if (!teams.Any())
@@ -31,7 +31,7 @@ internal static class Program
         {
             var title = $"BLS Match: {match.Host} vs {match.Guest}";
             var eventId = match.GenerateEventId();
-            var added = await calendar.AddEvent(
+            var added = await calendar.AddEventAsync(
                 match.MatchDate,
                 title,
                 match.GenerateDescription(),
@@ -114,6 +114,6 @@ internal static class Program
         } while (key != ConsoleKey.Enter);
 
         Console.CursorVisible = true;
-        return teams[selectedIndex];
+        return teams[selectedIndex];*/
     }
 }

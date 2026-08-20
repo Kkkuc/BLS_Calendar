@@ -1,57 +1,51 @@
-
+using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
+using HtmlAgilityPack;
 
 namespace Calendar_Core;
-using System.Net;
-using HtmlAgilityPack;
 
 public partial class Page
 {
+    private static readonly HttpClient Client = new()
+    {
+        DefaultRequestHeaders = { { "User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" } }
+    };
+
     private readonly string _url;
-    private readonly HttpClient _client;
     private readonly List<MatchData> _allMatches = [];
     private readonly List<MatchData> _unplayedMatches = [];
     
     public List<MatchData> AllMatches => _allMatches;
     public List<MatchData> UnplayedMatches => _unplayedMatches;
 
-    public Page(string url)
+    private Page(string url)
     {
         _url = url;
-        _client = new HttpClient();
-        _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
-        GetContent().Wait();
     }
 
-    public void ShowAllMatches()
+    public static async Task<Page> CreateAsync(string url)
     {
-        foreach (var match in _allMatches)
-        {
-            Console.WriteLine(match);
-        }
+        var page = new Page(url);
+        await page.GetContentAsync();
+        return page;
     }
 
-    public void ShowUnplayedMatches()
-    {
-        foreach (var match in _unplayedMatches)
-        {
-            Console.WriteLine(match);
-        }
-    }
-    
-    private async Task GetContent()
+    private async Task GetContentAsync()
     {
         try
         {
-            var html = await _client.GetStringAsync(_url);
+            var html = await Client.GetStringAsync(_url);
             var doc = new HtmlDocument();
             doc.LoadHtml(html);
 
             var rows = doc.DocumentNode.SelectNodes("//tr[count(td)=6]");
-            
-            foreach (var cells in rows.Select(row => row.SelectNodes("./td")).Where(cells => cells.Count == 6))
+
+            foreach (var row in rows)
             {
+                var cells = row.SelectNodes("./td");
+                if (cells.Count != 6) continue;
+
                 try
                 {
                     var pairs = WebUtility.HtmlDecode(cells[0].InnerText).Trim();
@@ -67,6 +61,7 @@ public partial class Page
                     var parts = resultIDataRaw.Split('|');
                     var result = parts[0].Trim();
                     var date = parts.Length > 1 ? parts[1].Trim() : null;
+                    
                     if (parts.Length == 1)
                     {
                         result = null;
@@ -79,16 +74,15 @@ public partial class Page
                     {
                         result = string.Concat(result.Where(c => !char.IsWhiteSpace(c)));
                         var (hostScoreHelp, guestScoreHelp) = SplitByColon(result, '-');
-                        hostScore = int.Parse(hostScoreHelp);
-                        guestScore = int.Parse(guestScoreHelp);
+                        _ = int.TryParse(hostScoreHelp, out hostScore);
+                        _ = int.TryParse(guestScoreHelp, out guestScore);
                     }
                     
-                    var round = int.Parse(WebUtility.HtmlDecode(cells[3].InnerText).Trim());
+                    _ = int.TryParse(WebUtility.HtmlDecode(cells[3].InnerText).Trim(), out var round);
                     var court = LimitToSpace(WebUtility.HtmlDecode(cells[4].InnerText).Trim(), 2);
 
-                    // 6. Link do meczu (Indeks 5)
-                    //var linkNode = cells[5].SelectSingleNode(".//a");
-                    //linkNode.GetAttributeValue("href", "");
+                    if (!DateTime.TryParse(date, out var parsedDate)) continue;
+
                     var matchData = new MatchData
                     (
                         host, 
@@ -97,19 +91,19 @@ public partial class Page
                         guestScore, 
                         round, 
                         status,
-                        DateTime.Parse(date!), 
+                        parsedDate, 
                         court
-                        );
+                    );
                     
                     _allMatches.Add(matchData);
-                    if (status == string.Empty && date != null)
+                    if (string.IsNullOrEmpty(status))
                     {
                         _unplayedMatches.Add(matchData);
                     }
                 }
-                catch (Exception)
+                catch
                 {
-                    // Pomija wiersze, które mimo 6 kolumn mają nietypową strukturę
+                    // Pomija wiersze o nietypowej strukturze
                 }
             }
         }
@@ -122,37 +116,28 @@ public partial class Page
     private static (string Left, string Right) SplitByColon(string? input, char separator)
     {
         if (string.IsNullOrEmpty(input))
-            return (null, null)!;
+            return (string.Empty, string.Empty);
 
-        var parts = input.Split(separator, 2); // 2 = maksymalnie dwa elementy
-
-        var left = parts.Length > 0 ? parts[0] : string.Empty;
-        var right = parts.Length > 1 ? parts[1] : string.Empty;
-
-        return (left, right);
+        var parts = input.Split(separator, 2);
+        return (parts.Length > 0 ? parts[0] : string.Empty, parts.Length > 1 ? parts[1] : string.Empty);
     }
 
     private static string LimitToSpace(string input, int numberOfSpaces)
     {
         var parts = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-        return parts.Length >= numberOfSpaces ? 
-            string.Join(" ", parts.Take(numberOfSpaces)) : 
-            input; 
+        return parts.Length >= numberOfSpaces ? string.Join(" ", parts.Take(numberOfSpaces)) : input; 
     }
 
     public static async Task<List<Team>> FetchAllTeamsAsync(int maxId = 60)
     {
         const string baseUrl = "https://blssiatkowka.ligspace.pl/index.php";
-        using var client = new HttpClient();
-        client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
 
         var tasks = Enumerable.Range(1, maxId).Select(async id =>
         {
             var profileUrl = $"{baseUrl}?mod=Teams&ac=TeamSchedule&t_id={id}";
             try
             {
-                var html = await client.GetStringAsync(profileUrl);
+                var html = await Client.GetStringAsync(profileUrl);
                 var doc = new HtmlDocument();
                 doc.LoadHtml(html);
                 
@@ -160,7 +145,6 @@ public partial class Page
 
                 var cleanName = HttpUtility.HtmlDecode(nameNode.InnerText).Trim();
 
-                // Ignorujemy puste wartości i komunikaty o braku zespołu
                 if (string.IsNullOrWhiteSpace(cleanName) || 
                     cleanName.Equals("Błąd", StringComparison.OrdinalIgnoreCase) ||
                     cleanName.Equals("Najnowsze wiadomości", StringComparison.OrdinalIgnoreCase) || 
@@ -178,17 +162,13 @@ public partial class Page
             }
             catch
             {
-                // Pomiń brakujące/błędne ID
+                return null;
             }
-
-            return null;
         });
 
         var results = await Task.WhenAll(tasks);
-
-        return [.. results.Where(t => t != null).OrderBy(t => t.Name)]!;
+        return results.Where(t => t != null).OrderBy(t => t!.Name).ToList()!;
     }
-    
 
     [GeneratedRegex("<.*?>")]
     private static partial Regex MyRegex();

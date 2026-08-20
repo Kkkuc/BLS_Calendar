@@ -1,28 +1,29 @@
 using System.Net;
-using System.Reflection;
 using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
-using Google.Apis.Util.Store;
 
 namespace Calendar_Core;
 
 public class GoogleCalendarHelper
 {
-    private readonly string[] _scopes = [CalendarService.Scope.Calendar];
+    //private readonly string[] _scopes = [CalendarService.Scope.Calendar];
     private const string ApplicationName = "My Calendar App";
     
     [Obsolete("Obsolete")]
-    public async Task<bool> AddEvent(DateTime startDate,
+    public async Task<bool> AddEventAsync(
+        string accessToken,
+        DateTime startDate,
         string title,
         string? description = null,
         string? eventId = null,
         DateTime? endDate = null)
     {
         endDate ??= startDate.AddHours(2);
-        var credential = await GetCredentialAsync();
+        //var credential = await GetCredentialAsync();
+        var credential = GoogleCredential.FromAccessToken(accessToken);
 
         var service = new CalendarService(new BaseClientService.Initializer
         {
@@ -68,7 +69,7 @@ public class GoogleCalendarHelper
         }
     }
     
-    private static Stream GetCredentialsStream()
+   /* private static Stream GetCredentialsStream()
     {
         var assembly = Assembly.GetExecutingAssembly();
         var resourceName = assembly
@@ -93,5 +94,5 @@ public class GoogleCalendarHelper
             CancellationToken.None,
             new FileDataStore("token.json", true)
         );
-    }
+    }*/
 }
