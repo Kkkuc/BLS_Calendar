@@ -1,4 +1,7 @@
-﻿namespace Calendar_Core;
+﻿using System.Security.Cryptography;
+using System.Text;
+
+namespace Calendar_Core;
 
 public class MatchData(string host, string guest, int hostSetsResult, int guestSetsResult, int round, string status, DateTime? matchDate, string court)
 {
@@ -31,4 +34,12 @@ public class MatchData(string host, string guest, int hostSetsResult, int guestS
 
     public string GenerateDescription() =>
         $"Court: {court}";
+    
+    public string GenerateEventId()
+    {
+        var rawId = $"bls_{host}_{guest}_{MatchDate:yyyyMMddHHmm}".ToLower();
+        using var md5 = MD5.Create();
+        var hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(rawId));
+        return Convert.ToHexString(hashBytes).ToLower(); 
+    }
 }

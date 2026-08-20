@@ -15,20 +15,17 @@ internal static class Program
         foreach (var match in oldBoyePage.UnplayedMatches)
         {
             var title = $"BLS Match: {match.Host} vs {match.Guest}";
-            bool exists = await calendar.EventExistsAsync(match.MatchDate, title);
-            if (exists)
-            {
-                Console.WriteLine($"[POMINIĘTO] Wydarzenie już istnieje: {title} ({match.MatchDate})");
-                continue;
-            }
-
-            await calendar.AddEvent(
+            var eventId = match.GenerateEventId();
+            var added = await calendar.AddEvent(
                 match.MatchDate,
                 title,
-                match.GenerateDescription()
+                match.GenerateDescription(),
+                eventId: eventId
             );
 
-            Console.WriteLine($"[DODANO] {title} ({match.MatchDate})");
+            Console.WriteLine(added
+                ? $"[DODANO] {title} ({match.MatchDate})"
+                : $"[POMINIĘTO - JUŻ JEST] {title} ({match.MatchDate})");
         }
     }
 }
