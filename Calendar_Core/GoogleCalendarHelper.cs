@@ -46,6 +46,28 @@ public class GoogleCalendarHelper
         await service.Events.Insert(newEvent, "primary").ExecuteAsync();
     }
     
+    public async Task<bool> EventExistsAsync(DateTime startDate, string title)
+    {
+        var credential = await GetCredentialAsync();
+
+        var service = new CalendarService(new BaseClientService.Initializer
+        {
+            HttpClientInitializer = credential,
+            ApplicationName = ApplicationName,
+        });
+
+        // Szukamy wydarzeń dokładnie w tym samym dniu/godzinie (np. window +/- 1 minuta)
+        var request = service.Events.List("primary");
+        request.TimeMinDateTimeOffset = startDate.AddMinutes(-1);
+        request.TimeMaxDateTimeOffset = startDate.AddMinutes(1);
+        request.Q = title; // Filtrowanie po tytule
+
+        var events = await request.ExecuteAsync();
+
+        // Sprawdzamy, czy którekolwiek z dopasowanych wydarzeń ma identyczny tytuł
+        return events.Items.Any(e => e.Summary.Equals(title, StringComparison.OrdinalIgnoreCase));
+    }
+    
     public void Logout()
     {
         var tokenPath = Path.Combine("token.json");
