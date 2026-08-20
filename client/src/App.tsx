@@ -1,11 +1,26 @@
 import { useState } from 'react';
 import type { Team } from './types';
+import type { MatchDto } from './types/match';
 import TeamSelection from './components/TeamSelection';
 import { MatchList } from './components/MatchList';
+import { ExportModal } from './components/ExportModal';
 import './App.css';
 
 export default function App() {
     const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+    const [matchesToExport, setMatchesToExport] = useState<MatchDto[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+    const handleOpenExportModal = (matches: MatchDto[]) => {
+        setMatchesToExport(matches);
+        setIsModalOpen(true);
+    };
+
+    const handleResetAll = () => {
+        setIsModalOpen(false);
+        setMatchesToExport([]);
+        setSelectedTeam(null);
+    };
 
     return (
         <div className="app-container">
@@ -32,17 +47,22 @@ export default function App() {
                             </button>
                         </div>
 
-                        {/* Wczytanie listy meczów z C# */}
                         <MatchList
                             teamId={selectedTeam.id}
                             teamName={selectedTeam.name}
-                            onExportSelected={(selectedMatches) => {
-                                console.log('Mecze do wyeksportowania do Google Calendar:', selectedMatches);
-                            }}
+                            onExportSelected={handleOpenExportModal}
                         />
                     </div>
                 )}
             </main>
+
+            {/* Modal eksportu */}
+            <ExportModal
+                isOpen={isModalOpen}
+                matches={matchesToExport}
+                onClose={() => setIsModalOpen(false)}
+                onResetTeamSelection={handleResetAll}
+            />
         </div>
     );
 }

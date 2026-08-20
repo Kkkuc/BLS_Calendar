@@ -67,6 +67,10 @@ public class GoogleCalendarHelper
         {
             Directory.Delete(tokenPath, true);
         }
+        else if (File.Exists(tokenPath))
+        {
+            File.Delete(tokenPath);
+        }
     }
     
    /* private static Stream GetCredentialsStream()
