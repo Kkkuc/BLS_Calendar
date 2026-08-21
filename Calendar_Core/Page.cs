@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
+using Calendar_Core.Models;
 using HtmlAgilityPack;
 
 namespace Calendar_Core;
@@ -140,8 +141,9 @@ public partial class Page
                 var html = await Client.GetStringAsync(profileUrl);
                 var doc = new HtmlDocument();
                 doc.LoadHtml(html);
-                
+            
                 var nameNode = doc.DocumentNode.SelectSingleNode("//div[@id='main']//h2");
+                if (nameNode == null) return null;
 
                 var cleanName = HttpUtility.HtmlDecode(nameNode.InnerText).Trim();
 
@@ -153,12 +155,8 @@ public partial class Page
                     return null;
                 }
 
-                return new Team
-                {
-                    Id = id,
-                    Name = cleanName,
-                    Url = profileUrl
-                };
+                // Tworzenie rekordu za pomocą Primary Constructora
+                return new Team(id, cleanName, profileUrl);
             }
             catch
             {

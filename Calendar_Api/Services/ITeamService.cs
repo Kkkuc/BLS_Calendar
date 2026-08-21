@@ -6,5 +6,5 @@ public interface ITeamService
 {
     Task<List<TeamDto>> GetTeamsAsync();
     Task<List<MatchDto>> GetUnplayedMatchesAsync(int teamId);
-    Task<int> ExportMatchesToGoogleCalendarAsync(string accessToken, List<MatchDto> matches);
+    Task<ExportResponseDto> ExportMatchesToGoogleCalendarAsync(string accessToken, List<MatchDto> matches);
 }

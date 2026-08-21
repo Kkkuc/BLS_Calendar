@@ -8,7 +8,6 @@ namespace Calendar_Api.Controllers;
 [Route("api/[controller]")]
 public class TeamsController(ITeamService teamService) : ControllerBase
 {
-    // GET /api/teams
     [HttpGet]
     public async Task<ActionResult<List<TeamDto>>> GetTeams()
     {
@@ -16,7 +15,6 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(teams);
     }
 
-    // GET /api/teams/{id}/matches
     [HttpGet("{id:int}/matches")]
     public async Task<ActionResult<List<MatchDto>>> GetMatches(int id)
     {
@@ -24,27 +22,26 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(matches);
     }
 
-    // POST /api/teams/export
     [HttpPost("export")]
-    public async Task<IActionResult> ExportMatches([FromBody] ExportMatchesRequestDto request)
+    public async Task<ActionResult<ExportResponseDto>> ExportMatches([FromBody] ExportMatchesRequestDto request)
     {
-        if (!Request.Headers.TryGetValue("Authorization", out var authHeader))
+        if (!Request.Headers.TryGetValue("Authorization", out var authHeader) || string.IsNullOrWhiteSpace(authHeader))
         {
-            return Unauthorized("Brak nagłówka Authorization.");
+            return BadRequest(new { message = "Brak nagłówka Authorization." });
         }
 
-        var accessToken = authHeader.ToString().Replace("Bearer ", "").Trim();
+        var accessToken = authHeader.ToString().Replace("Bearer ", "", StringComparison.OrdinalIgnoreCase).Trim();
         if (string.IsNullOrEmpty(accessToken))
         {
-            return Unauthorized("Nieprawidłowy token dostępowy.");
+            return Unauthorized(new { message = "Nieprawidłowy token dostępowy." });
         }
 
         if (request.Matches.Count == 0)
         {
-            return BadRequest("Brak meczów do wyeksportowania.");
+            return BadRequest(new { message = "Brak meczów do wyeksportowania." });
         }
 
-        var exportedCount = await teamService.ExportMatchesToGoogleCalendarAsync(accessToken, request.Matches);
-        return Ok(new { Message = $"Pomyślnie dodano {exportedCount} meczów do kalendarza." });
+        var result = await teamService.ExportMatchesToGoogleCalendarAsync(accessToken, request.Matches);
+        return Ok(result);
     }
 }
