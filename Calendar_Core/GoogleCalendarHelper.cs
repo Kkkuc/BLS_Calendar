@@ -55,7 +55,15 @@ public class GoogleCalendarHelper
         }
         catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.Conflict)
         {
+            // Tylko kod 409 to faktyczny duplikat
+            Console.WriteLine($"[DUPLIKAT] Event {eventId} już istnieje.");
             return false; 
+        }
+        catch (GoogleApiException ex)
+        {
+            // TUTAJ ZOBACZYSZ PRAWDZIWY BŁĄD (np. Invalid Event ID, Unauthorized, Invalid Credentials)
+            Console.WriteLine($"[BŁĄD GOOGLE API {ex.HttpStatusCode}]: {ex.Message}");
+            throw; // Przerwij, aby zobaczyć dokładny błąd w konsoli backendu
         }
     }
     

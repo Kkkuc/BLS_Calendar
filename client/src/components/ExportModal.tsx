@@ -19,7 +19,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     const [isSuccess, setIsSuccess] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Wysyłka danych do backendu C# z otrzymanym tokenem
+    const [exportSummary, setExportSummary] = useState<{
+        added: number;
+        skipped: number;
+        details: Array<{ match: string; status: string; message: string }>;
+    } | null>(null);
+
     const sendMatchesToBackend = async (accessToken: string) => {
         try {
             const response = await fetch('/api/calendar/export', {
@@ -34,18 +39,23 @@ export const ExportModal: React.FC<ExportModalProps> = ({
             const data = await response.json().catch(() => null);
 
             if (!response.ok) {
-                throw new Error(data?.message || 'Nie udało się wyeksportować meczów do Google Calendar.');
+                throw new Error(data?.message || 'Nie udało się wyeksportować meczów.');
             }
+
+            setExportSummary({
+                added: data.summary?.added ?? 0,
+                skipped: data.summary?.skipped ?? 0,
+                details: data.details ?? [],
+            });
 
             setIsSuccess(true);
         } catch (err: any) {
-            setError(err.message || 'Wystąpił nieoczekiwany błąd podczas eksportu.');
+            setError(err.message || 'Wystąpił błąd.');
         } finally {
             setIsExporting(false);
         }
     };
 
-    // OAuth Pop-up wywoływany przy kliknięciu przycisku
     const loginAndExport = useGoogleLogin({
         scope: 'https://www.googleapis.com/auth/calendar',
         onSuccess: async (tokenResponse) => {
@@ -62,40 +72,61 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     const handleConfirm = () => {
         setIsExporting(true);
         setError(null);
-        loginAndExport(); // Otwiera okienko wyboru konta Google
+        loginAndExport();
     };
 
     const handleRetry = () => {
         setIsSuccess(false);
         setError(null);
+        setExportSummary(null);
     };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative">
 
-                {/* 1. Ekran sukcesu */}
-                {isSuccess ? (
-                    <div className="text-center py-4">
-                        <div className="text-5xl mb-3">✅</div>
-                        <h3 className="text-xl font-bold text-gray-800 mb-2">
-                            Pomyślnie wyeksportowano mecze!
+                {/* 1. Ekran sukcesu ze szczegółowymi wynikami */}
+                {isSuccess && exportSummary ? (
+                    <div className="text-center py-2">
+                        <div className="text-4xl mb-2">✅</div>
+                        <h3 className="text-xl font-bold text-gray-800 mb-1">
+                            Eksport zakończony
                         </h3>
-                        <p className="text-sm text-gray-600 mb-6">
-                            Mecze ({matches.length}) zostały dodane do Twojego Google Calendar.
+
+                        <p className="text-xs text-gray-600 mb-4">
+                            Dodano: <span className="font-semibold text-green-600">{exportSummary.added}</span> |
+                            Pominięto (duplikaty): <span className="font-semibold text-amber-600">{exportSummary.skipped}</span>
                         </p>
+
+                        {/* Lista przetestowanych meczów i ich statusy */}
+                        <div className="max-h-48 overflow-y-auto mb-5 border border-gray-200 rounded p-2 text-xs text-left divide-y divide-gray-100 bg-gray-50">
+                            {exportSummary.details.map((item, idx) => (
+                                <div key={idx} className="py-2 flex justify-between items-center gap-2">
+                                    <span className="font-medium text-gray-800 truncate" title={item.match}>
+                                        {item.match}
+                                    </span>
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${
+                                        item.status === 'ADDED'
+                                            ? 'bg-green-100 text-green-700 border border-green-200'
+                                            : 'bg-amber-100 text-amber-700 border border-amber-200'
+                                    }`}>
+                                        {item.status === 'ADDED' ? 'DODANO' : 'DUPLIKAT'}
+                                    </span>
+                                </div>
+                            ))}
+                        </div>
 
                         <div className="flex flex-col gap-2">
                             <button
                                 type="button"
-                                className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium transition"
+                                className="w-full py-2 px-4 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 font-medium text-xs transition"
                                 onClick={handleRetry}
                             >
-                                🔄 Wyślij jeszcze raz
+                                🔄 Wyślij ponowne żądanie
                             </button>
                             <button
                                 type="button"
-                                className="w-full py-2 px-4 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 font-medium transition"
+                                className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-xs transition"
                                 onClick={onResetTeamSelection}
                             >
                                 🏠 Powrót do wyboru drużyny
@@ -122,7 +153,6 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                             Zamierzasz dodać <span className="font-semibold">{matches.length}</span> mecz(y) do swojego kalendarza:
                         </p>
 
-                        {/* Podgląd wybranych meczów */}
                         <div className="max-h-48 overflow-y-auto mb-4 border border-gray-200 rounded p-2 text-xs divide-y divide-gray-100">
                             {matches.map((match, idx) => {
                                 const host = match.host || (match as any).Host || 'Gospodarz';
