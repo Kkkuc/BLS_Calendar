@@ -19,4 +19,22 @@ public class TeamService(LigspaceScraper scraper) : ITeamService
             .Select(m => new MatchDto(m.Host, m.Guest, m.HostSetsResult, m.GuestSetsResult, m.Round, m.Status, m.MatchDate, m.Court))
             .ToList();
     }
+    
+    public async Task<List<MatchDto>> GetMatchesAsync(int teamId)
+    {
+        var matches = await scraper.GetTeamMatchesAsync(teamId);
+    
+        // Zwracamy WSZYSTKIE mecze z tabeli ligowej
+        return matches
+            .Select(m => new MatchDto(
+                m.Host, 
+                m.Guest, 
+                m.HostSetsResult, 
+                m.GuestSetsResult, 
+                m.Round, 
+                m.Status, 
+                m.MatchDate, 
+                m.Court))
+            .ToList();
+    }
 }

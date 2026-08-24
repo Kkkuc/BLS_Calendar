@@ -7,4 +7,5 @@ export interface MatchDto {
     status: string;
     matchDate: string;
     court: string;
+    isUnplayed?: boolean;
 }

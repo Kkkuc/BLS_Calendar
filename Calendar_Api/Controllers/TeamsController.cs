@@ -18,7 +18,7 @@ public class TeamsController(ITeamService teamService) : ControllerBase
     [HttpGet("{id:int}/matches")]
     public async Task<ActionResult<List<MatchDto>>> GetMatches(int id)
     {
-        var matches = await teamService.GetUnplayedMatchesAsync(id);
+        var matches = await teamService.GetMatchesAsync(id);
         return Ok(matches);
     }
 }

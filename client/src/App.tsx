@@ -102,8 +102,8 @@ export default function App() {
                             </div>
 
                             <MatchList
-                                teamId={selectedTeam.id}
-                                teamName={selectedTeam.name}
+                                team={selectedTeam}
+                                onBack={() => setSelectedTeam(null)}
                                 onExportSelected={handleOpenExportModal}
                             />
                         </div>

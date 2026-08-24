@@ -56,8 +56,8 @@ body {
   color: var(--text-primary);
   font-family: Inter, system-ui, -apple-system, sans-serif;
   min-height: 100vh;
-  /* Blokuje główny scrollbar strony na PC */
-  overflow-y: hidden;
+  /* Blokuje główny scrollbar strony na PC 
+  overflow-y: hidden;*/
 }
 
 /* Układ całej aplikacji z priorytetem dla Navbaru */
