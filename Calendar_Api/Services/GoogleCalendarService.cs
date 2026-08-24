@@ -16,7 +16,7 @@ public class GoogleCalendarService : IGoogleCalendarService
         DateTime startDate,
         string title,
         string? description,
-        string eventId,
+        //string eventId,
         DateTime? endDate = null)
     {
         endDate ??= startDate.AddHours(2);
@@ -30,7 +30,7 @@ public class GoogleCalendarService : IGoogleCalendarService
 
         var newEvent = new Event
         {
-            Id = eventId,
+            //Id = eventId,
             Summary = title,
             Description = description,
             Start = new EventDateTime { DateTime = startDate, TimeZone = "Europe/Warsaw" },

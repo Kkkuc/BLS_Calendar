@@ -48,8 +48,8 @@ public class TeamService(LigspaceScraper scraper, IGoogleCalendarService calenda
                 accessToken: accessToken,
                 startDate: matchData.MatchDate,
                 title: title,
-                description: description,
-                eventId: eventId
+                description: description
+                //eventId: eventId
             );
 
             if (added)

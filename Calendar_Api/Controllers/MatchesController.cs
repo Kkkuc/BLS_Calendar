@@ -12,11 +12,7 @@ public class MatchesController : ControllerBase
     public async Task<IActionResult> GetUnplayedMatches(int teamId)
     {
         var url = $"https://blssiatkowka.ligspace.pl/index.php?mod=Teams&ac=TeamSchedule&t_id={teamId}";
-        
-        // Posiłkujemy się logiką z Core
         var page = await Page.CreateAsync(url);
-        
-        // Zwracamy bezpośrednio listę nierozegranych meczów
         return Ok(page.UnplayedMatches);
     }
 }

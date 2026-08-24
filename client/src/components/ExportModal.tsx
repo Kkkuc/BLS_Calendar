@@ -21,7 +21,6 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
     const [exportSummary, setExportSummary] = useState<{
         added: number;
-        skipped: number;
         details: Array<{ match: string; status: string; message: string }>;
     } | null>(null);
 
@@ -44,7 +43,6 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
             setExportSummary({
                 added: data.summary?.added ?? 0,
-                skipped: data.summary?.skipped ?? 0,
                 details: data.details ?? [],
             });
 
@@ -85,7 +83,6 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative">
 
-                {/* 1. Ekran sukcesu ze szczegółowymi wynikami */}
                 {isSuccess && exportSummary ? (
                     <div className="text-center py-2">
                         <div className="text-4xl mb-2">✅</div>
@@ -94,23 +91,17 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                         </h3>
 
                         <p className="text-xs text-gray-600 mb-4">
-                            Dodano: <span className="font-semibold text-green-600">{exportSummary.added}</span> |
-                            Pominięto (duplikaty): <span className="font-semibold text-amber-600">{exportSummary.skipped}</span>
+                            Dodano meczów: <span className="font-semibold text-green-600">{exportSummary.added}</span>
                         </p>
 
-                        {/* Lista przetestowanych meczów i ich statusy */}
                         <div className="max-h-48 overflow-y-auto mb-5 border border-gray-200 rounded p-2 text-xs text-left divide-y divide-gray-100 bg-gray-50">
                             {exportSummary.details.map((item, idx) => (
                                 <div key={idx} className="py-2 flex justify-between items-center gap-2">
                                     <span className="font-medium text-gray-800 truncate" title={item.match}>
                                         {item.match}
                                     </span>
-                                    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold whitespace-nowrap ${
-                                        item.status === 'ADDED'
-                                            ? 'bg-green-100 text-green-700 border border-green-200'
-                                            : 'bg-amber-100 text-amber-700 border border-amber-200'
-                                    }`}>
-                                        {item.status === 'ADDED' ? 'DODANO' : 'DUPLIKAT'}
+                                    <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-700 border border-green-200 whitespace-nowrap">
+                                        DODANO
                                     </span>
                                 </div>
                             ))}
@@ -134,7 +125,6 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                         </div>
                     </div>
                 ) : (
-                    /* 2. Ekran potwierdzenia wysyłki */
                     <div>
                         <div className="flex justify-between items-center mb-4">
                             <h3 className="text-lg font-bold text-gray-800">
