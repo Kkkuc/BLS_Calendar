@@ -15,8 +15,8 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
-    // Domyślny obrazek logo w przypadku braku dynamicznego URL
-    const defaultLogo = "../../public/default-logo.png";
+    // Domyślne logo z folderu public
+    const defaultLogo = "../public/default-logo.png";
 
     useEffect(() => {
         async function loadTeams() {
@@ -30,14 +30,17 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                 }
 
                 const data: Team[] = await response.json();
-                data.filter((team) => {
+
+                // Poprawione przefiltrowanie nieprawidłowych wpisów
+                const cleanTeams = data.filter((team) => {
                     const invalidNames = ['najnowsze wiadomości', 'błąd', 'szanowni użytkownicy'];
                     return !invalidNames.some((invalid) => team.name.toLowerCase().includes(invalid));
                 });
-                setTeams(data);
+
+                setTeams(cleanTeams);
 
                 if (selectedTeamId) {
-                    const found = data.find((t) => t.id === selectedTeamId);
+                    const found = cleanTeams.find((t) => t.id === selectedTeamId);
                     if (found) setSelectedTeam(found);
                 }
             } catch (err: any) {
@@ -94,7 +97,6 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
 
     return (
         <div className="card flashscore-card">
-
             {/* Wyszukiwarka */}
             <div className="search-box">
                 <input
@@ -105,7 +107,7 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                 />
             </div>
 
-            {/* Lista drużyn  */}
+            {/* Lista drużyn */}
             <div className="team-list">
                 {filteredTeams.length > 0 ? (
                     filteredTeams.map((team) => {
@@ -118,10 +120,11 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                             >
                                 <div className="team-info">
                                     <img
-                                        src={team.url || defaultLogo}
+                                        src={team.logoUrl || defaultLogo}
                                         alt={team.name}
                                         className="team-logo"
                                         onError={(e) => {
+                                            // Fallback do domyślnego logo w razie błędu wczytywania URL
                                             (e.target as HTMLImageElement).src = defaultLogo;
                                         }}
                                     />

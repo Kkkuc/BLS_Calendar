@@ -7,7 +7,7 @@ public class TeamService(LigspaceScraper scraper) : ITeamService
     public async Task<List<TeamDto>> GetTeamsAsync()
     {
         var teams = await scraper.FetchAllTeamsAsync();
-        return teams.Select(t => new TeamDto(t.Id, t.Name, t.Url, t.League)).ToList();
+        return teams.Select(t => new TeamDto(t.Id, t.Name, t.Url, t.LogoUrl, t.League)).ToList();
     }
 
     public async Task<List<MatchDto>> GetUnplayedMatchesAsync(int teamId)

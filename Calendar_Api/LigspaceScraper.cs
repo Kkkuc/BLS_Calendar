@@ -14,7 +14,7 @@ public partial class LigspaceScraper(HttpClient httpClient)
     {
         var url = $"{BaseUrl}?mod=Teams&ac=TeamSchedule&t_id={teamId}";
         var html = await httpClient.GetStringAsync(url);
-        
+
         var doc = new HtmlDocument();
         doc.LoadHtml(html);
 
@@ -26,6 +26,7 @@ public partial class LigspaceScraper(HttpClient httpClient)
         {
             return matches;
         }
+
         foreach (var row in rows)
         {
             var cells = row.SelectNodes("./td");
@@ -78,23 +79,56 @@ public partial class LigspaceScraper(HttpClient httpClient)
                 var nameNode = doc.DocumentNode.SelectSingleNode("//div[@id='main']//h2");
 
                 var cleanName = HttpUtility.HtmlDecode(nameNode!.InnerText).Trim();
-                
-                var invalidNames = new[] 
-                { 
-                    "Błąd", 
-                    "Najnowsze wiadomości", 
-                    "Wiadomości", 
+
+                var invalidNames = new[]
+                {
+                    "Błąd",
+                    "Najnowsze wiadomości",
+                    "Wiadomości",
                     "Szanowni użytkownicy",
                     "Strona główna"
                 };
 
-                if (string.IsNullOrWhiteSpace(cleanName) || 
+                if (string.IsNullOrWhiteSpace(cleanName) ||
                     invalidNames.Any(invalid => cleanName.Contains(invalid, StringComparison.OrdinalIgnoreCase)))
                 {
                     return null;
                 }
 
-                return new Team(id, cleanName, profileUrl);
+                // Pobieramy obrazek logo znajdujący się w sekcji głównej profilu
+                var imgNode =
+                    doc.DocumentNode.SelectSingleNode(
+                        "//div[@id='main']//img[contains(@src, 'user_files') or contains(@src, 'teams') or contains(@src, 'upload')]") ??
+                    // Alternatywne zapytanie, jeśli logo jest jedynym obrazkiem w profilu pod h2:
+                    doc.DocumentNode.SelectSingleNode("//div[@id='main']//img");
+
+                string? logoUrl = null;
+                if (imgNode == null)
+                {
+                    return new Team(id, cleanName, profileUrl, logoUrl);
+                }
+
+                var src = imgNode.GetAttributeValue("src", string.Empty);
+                var invalidImageKeywords = new[] { "logo_BLS", "banner", "blank.gif", "blank" };
+
+                if (string.IsNullOrWhiteSpace(src) || 
+                    invalidImageKeywords.Any(keyword => src.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return new Team(id, cleanName, profileUrl, null);
+                }
+
+                // Budujemy pełny URL jeśli ścieżka jest względna
+                if (src.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+                {
+                    logoUrl = src;
+                }
+                else
+                {
+                    const string domain = "https://blssiatkowka.ligspace.pl";
+                    logoUrl = src.StartsWith($"/") ? $"{domain}{src}" : $"{domain}/{src}";
+                }
+
+                return new Team(id, cleanName, profileUrl, logoUrl);
             }
             catch
             {
@@ -120,7 +154,7 @@ public partial class LigspaceScraper(HttpClient httpClient)
         var decoded = WebUtility.HtmlDecode(rawHtml)
             .Replace("<br>", "|")
             .Replace("<br/>", "|");
-        
+
         var clean = HtmlTagRegex().Replace(decoded, "").Trim();
         var parts = clean.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
