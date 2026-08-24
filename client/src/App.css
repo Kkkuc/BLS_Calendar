@@ -51,6 +51,8 @@ body {
   color: var(--text-primary);
   font-family: Inter, system-ui, -apple-system, sans-serif;
   min-height: 100vh;
+  /* Blokuje główny scrollbar strony na PC */
+  overflow-y: hidden;
 }
 
 /* Układ całej aplikacji z priorytetem dla Navbaru */
@@ -74,7 +76,7 @@ body {
 
 .navbar-container {
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0;
   padding: 0.75rem 1rem;
   display: flex;
   justify-content: space-between;
@@ -107,7 +109,7 @@ body {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem 1rem;
+  padding: 1.5rem 0.5rem;
   box-sizing: border-box;
   flex: 1;
 }
@@ -194,15 +196,29 @@ body {
   border-color: var(--border-focus);
 }
 
-/* GRID / Lista Drużyn - Responsywność */
+/* GRID / Lista Drużyn - Przeliczone dla ekranów PC */
 .team-list {
-  max-height: 520px;
+  max-height: calc(100vh - 465px);
+  min-height: 80px;
   overflow-y: auto;
   display: grid;
   grid-template-columns: 1fr;
   gap: 10px;
   margin-bottom: 1.25rem;
   padding-right: 4px;
+}
+
+/* Przeliczenie wysokości dla wersji mobilnej (telefony) */
+@media (max-width: 767px) {
+  .team-list {
+    max-height: calc(100dvh - 360px);
+  }
+}
+
+@media (max-height: 500px){
+  body {
+    overflow-y: auto; 
+  }
 }
 
 /* Layout na PC */
@@ -367,7 +383,6 @@ body {
 .theme-switch input:checked + .slider .icon {
   transform: translateX(24px);
 }
-
 
 /* Stylizacja linku do strony głównej na pasku */
 .navbar-link {
