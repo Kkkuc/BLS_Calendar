@@ -130,7 +130,7 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                                     />
                                     <span className="team-name">{team.name}</span>
                                 </div>
-                                <div className="team-comment">komentarz</div>
+                                <div className="team-comment">Kliknij aby wybrać</div>
                             </div>
                         );
                     })

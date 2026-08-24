@@ -49,24 +49,27 @@ export default function App() {
             <nav className="navbar">
                 <div className="navbar-container">
                     <div className="navbar-brand">
+                        {/* Główny przycisk powrotu do wyboru drużyny (widoczny gdy wybrano zespół) */}
+                        {selectedTeam ? (
+                            <button
+                                onClick={() => setSelectedTeam(null)}
+                                className="tab-button active back-navbar-btn"
+                            >
+                                ← Wybór drużyny
+                            </button>
+                        ) : (
+                            <span className="navbar-title">Wybór drużyny</span>
+                        )}
+
+                        {/* Poboczny link zewnętrzny do ligi */}
                         <a
                             href="https://blssiatkowka.ligspace.pl/"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="navbar-link"
+                            className="navbar-link secondary-link"
                         >
-                            <span className="navbar-title">Strona główna ligi ↗</span>
+                            <span className="text-xs">Ligspace BLS ↗</span>
                         </a>
-
-                        {/* Przycisk powrotu w Navbarze (widoczny gdy wybrano drużynę) */}
-                        {selectedTeam && (
-                            <button
-                                onClick={() => setSelectedTeam(null)}
-                                className="tab-button back-navbar-btn"
-                            >
-                                ← Powrót
-                            </button>
-                        )}
                     </div>
 
                     <div className="navbar-actions">
