@@ -56,7 +56,7 @@ export default function App() {
                         className="navbar-link"
                     >
                         <span className="navbar-title">Strona główna ligi↗</span>
-                        </a>
+                    </a>
                     
                     <div className="navbar-actions">
                         <label className="theme-switch" title="Zmień motyw">
