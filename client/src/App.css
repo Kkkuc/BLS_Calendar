@@ -1,133 +1,67 @@
-#root {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-}
-
-.header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.header h1 {
-  font-size: 1.8rem;
-  margin-bottom: 0.5rem;
-}
-
-.header p {
-  color: #888;
-  font-size: 0.95rem;
-}
-
-.card {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-}
-
-.league-switch {
-  display: flex;
-  background: #2a2a2a;
-  padding: 4px;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-}
-
-.tab-button {
-  flex: 1;
-  padding: 10px;
-  border: none;
-  background: transparent;
-  color: #aaa;
-  font-weight: 600;
-  cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s ease;
-}
-
-.tab-button.active {
-  background: #646cff;
-  color: #fff;
-}
-
-.search-box input {
-  width: 100%;
-  padding: 10px 14px;
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 6px;
-  color: #fff;
-  box-sizing: border-box;
-  margin-bottom: 1rem;
-}
-
-.search-box input:focus {
-  outline: none;
-  border-color: #646cff;
-}
-
+/* Stylizacja listy w stylu Flashscore */
 .team-list {
-  max-height: 280px;
+  max-height: 380px;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 1.5rem;
+  padding-right: 2px;
 }
 
 .team-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background: #252525;
-  border: 1px solid #333;
+  padding: 10px 14px;
+  background: #1e1e24;
+  border: 1px solid #2e303a;
   border-radius: 8px;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.15s ease-in-out;
 }
 
 .team-item:hover {
-  background: #2d2d2d;
+  background: #282a36;
+  border-color: #44475a;
 }
 
 .team-item.selected {
   border-color: #646cff;
-  background: #2a2d54;
+  background: #25284a;
 }
 
-.badge {
-  font-size: 0.75rem;
-  background: #646cff;
-  color: white;
-  padding: 2px 8px;
+/* Lewa strona: Logo + Nazwa */
+.team-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.team-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
   border-radius: 4px;
+  background: #2a2a2a;
+  flex-shrink: 0;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 2rem;
-  color: #666;
+.team-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #f3f4f6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.submit-btn {
-  width: 100%;
-  padding: 12px;
-  background: #646cff;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: opacity 0.2s ease;
-}
-
-.submit-btn:disabled {
-  background: #444;
-  color: #888;
-  cursor: not-allowed;
+/* Prawa strona: Komentarz */
+.team-comment {
+  font-size: 0.8rem;
+  color: #8b949e;
+  font-weight: 400;
+  white-space: nowrap;
+  margin-left: 12px;
 }

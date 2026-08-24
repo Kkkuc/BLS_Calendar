@@ -11,9 +11,12 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [selectedLeague, setSelectedLeague] = useState<number>(1);
+    const [selectedLeague] = useState<number>(1);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+
+    // Domyślny obrazek logo w przypadku braku dynamicznego URL
+    const defaultLogo = "../../public/default-logo.png";
 
     useEffect(() => {
         async function loadTeams() {
@@ -29,7 +32,6 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                 const data: Team[] = await response.json();
                 setTeams(data);
 
-                // Zaznacz drużynę, jeśli jej ID przyszło w propsach z rodzica
                 if (selectedTeamId) {
                     const found = data.find((t) => t.id === selectedTeamId);
                     if (found) setSelectedTeam(found);
@@ -47,7 +49,6 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
 
     const filteredTeams = useMemo(() => {
         return teams.filter((team) => {
-            // Bezpieczne porównanie ligi (niezależnie czy w API jest string "1", number 1 czy "I Liga")
             const matchesLeague = team.league
                 ? team.league.toString().includes(selectedLeague.toString())
                 : true;
@@ -66,7 +67,6 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
 
     const handleSubmit = () => {
         if (selectedTeam) {
-            // Wywołujemy przekazanie do rodzica (np. App.tsx), co uruchomi MatchList
             onSelectTeam(selectedTeam);
         }
     };
@@ -89,30 +89,9 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
     }
 
     return (
-        <div className="card">
-            <div className="league-switch">
-                <button
-                    type="button"
-                    className={`tab-button ${selectedLeague === 1 ? 'active' : ''}`}
-                    onClick={() => {
-                        setSelectedLeague(1);
-                        setSelectedTeam(null);
-                    }}
-                >
-                    I Liga
-                </button>
-                <button
-                    type="button"
-                    className={`tab-button ${selectedLeague === 2 ? 'active' : ''}`}
-                    onClick={() => {
-                        setSelectedLeague(2);
-                        setSelectedTeam(null);
-                    }}
-                >
-                    II Liga
-                </button>
-            </div>
+        <div className="card flashscore-card">
 
+            {/* Wyszukiwarka */}
             <div className="search-box">
                 <input
                     type="text"
@@ -122,6 +101,7 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                 />
             </div>
 
+            {/* Lista drużyn  */}
             <div className="team-list">
                 {filteredTeams.length > 0 ? (
                     filteredTeams.map((team) => {
@@ -132,8 +112,18 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                                 className={`team-item ${isSelected ? 'selected' : ''}`}
                                 onClick={() => handleTeamClick(team)}
                             >
-                                <span>{team.name}</span>
-                                {isSelected && <span className="badge">Wybrano</span>}
+                                <div className="team-info">
+                                    <img
+                                        src={team.url || defaultLogo}
+                                        alt={team.name}
+                                        className="team-logo"
+                                        onError={(e) => {
+                                            (e.target as HTMLImageElement).src = defaultLogo;
+                                        }}
+                                    />
+                                    <span className="team-name">{team.name}</span>
+                                </div>
+                                <div className="team-comment">komentarz</div>
                             </div>
                         );
                     })
@@ -142,6 +132,7 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                 )}
             </div>
 
+            {/* Przycisk akcji */}
             <div className="action-footer">
                 <button
                     type="button"
