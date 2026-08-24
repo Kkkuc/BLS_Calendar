@@ -1,6 +1,7 @@
 /* Paleta Dark Mode (domyślna) */
 :root,
 [data-theme="dark"] {
+  --bg-overlay: rgba(15, 16, 21, 0.65);
   --bg-main: #0f1015;
   --bg-card: #181920;
   --bg-element: #222430;
@@ -26,6 +27,7 @@
 
 /* Paleta Light Mode */
 [data-theme="light"] {
+  --bg-overlay: rgba(244, 245, 248, 0.3);
   --bg-main: #f4f5f8;
   --bg-card: #ffffff;
   --bg-element: #e5e7eb;
@@ -48,6 +50,9 @@
 body {
   margin: 0;
   background-color: var(--bg-main);
+  background-image:
+          linear-gradient(var(--bg-overlay), var(--bg-overlay)),
+          url('../public/background_image.jpg');
   color: var(--text-primary);
   font-family: Inter, system-ui, -apple-system, sans-serif;
   min-height: 100vh;
