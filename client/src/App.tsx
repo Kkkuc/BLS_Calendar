@@ -46,69 +46,85 @@ export default function App() {
 
     return (
         <div className="app-container">
-            <header className="header">
-                <div className="top-bar">
-                    <label className="theme-switch" title="Zmień motyw">
-                        <input
-                            type="checkbox"
-                            onChange={toggleTheme}
-                            checked={theme === 'light'}
-                        />
-                        <span className="slider">
-                            <span className="icon">{theme === 'dark' ? '🌙' : '☀️'}</span>
-                        </span>
-                    </label>
-                </div>
+            <nav className="navbar">
+                <div className="navbar-container">
 
-
-                <img
-                    src="public/front_logo_BLS.jpg"
-                    alt="Białostocka Liga Sportu"
-                    className="bls-logo"
-                />
-                {/*<p className="header-subtitle">Integrator Kalendarza Google</p>*/}
-            </header>
-
-            <main>
-                {!selectedTeam ? (
-                    <TeamSelection onSelectTeam={(team) => setSelectedTeam(team)}/>
-                ) : (
-                    <div className="selected-team-container">
-                        <div className="card mb-4 flex justify-between items-center">
-                            <div>
-                                <span className="text-xs text-gray-400">Wybrany zespół:</span>
-                                <h2 className="text-lg font-bold">{selectedTeam.name}</h2>
-                            </div>
-                            <button
-                                className="change-team-btn"
-                                onClick={() => setSelectedTeam(null)}
-                            >
-                                🔄 Zmień
-                            </button>
-                        </div>
-
-                        <MatchList
-                            teamId={selectedTeam.id}
-                            teamName={selectedTeam.name}
-                            onExportSelected={handleOpenExportModal}
-                        />
+                    <a
+                        href="https://blssiatkowka.ligspace.pl/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="navbar-link"
+                    >
+                        <span className="navbar-title">Strona główna ligi↗</span>
+                        </a>
+                    
+                    <div className="navbar-actions">
+                        <label className="theme-switch" title="Zmień motyw">
+                            <input
+                                type="checkbox"
+                                onChange={toggleTheme}
+                                checked={theme === 'light'}
+                            />
+                            <span className="slider">
+                                <span className="icon">{theme === 'dark' ? '🌙' : '☀️'}</span>
+                            </span>
+                        </label>
                     </div>
-                )}
-            </main>
+                </div>
+            </nav>
 
-            <ExportConfirmModal
-                isOpen={exportStep === 'confirm'}
-                matches={matchesToExport}
-                onClose={() => setExportStep('closed')}
-                onSuccess={handleExportSuccess}
-            />
+            {/* Główna treść */}
+            <div className="main-content">
+                <header className="header">
+                    <img
+                        src="../public/front_logo_BLS.jpg"
+                        alt="Białostocka Liga Sportu"
+                        className="bls-logo"
+                    />
+                </header>
 
-            <ExportSummaryModal
-                isOpen={exportStep === 'summary'}
-                summary={summaryData}
-                onRetry={() => setExportStep('confirm')}
-                onResetTeamSelection={handleResetAll}
-            />
+                <main>
+                    {!selectedTeam ? (
+                        <TeamSelection onSelectTeam={(team) => setSelectedTeam(team)}/>
+                    ) : (
+                        <div className="selected-team-container">
+                            <div className="card mb-4 flex justify-between items-center">
+                                <div>
+                                    <span className="text-xs text-gray-400">Wybrany zespół:</span>
+                                    <h2 className="text-lg font-bold">{selectedTeam.name}</h2>
+                                </div>
+                                <button
+                                    className="change-team-btn"
+                                    onClick={() => setSelectedTeam(null)}
+                                >
+                                    🔄 Zmień
+                                </button>
+                            </div>
+
+                            <MatchList
+                                teamId={selectedTeam.id}
+                                teamName={selectedTeam.name}
+                                onExportSelected={handleOpenExportModal}
+                            />
+                        </div>
+                    )}
+                </main>
+
+                <ExportConfirmModal
+                    isOpen={exportStep === 'confirm'}
+                    matches={matchesToExport}
+                    onClose={() => setExportStep('closed')}
+                    onSuccess={handleExportSuccess}
+                />
+
+                <ExportSummaryModal
+                    isOpen={exportStep === 'summary'}
+                    summary={summaryData}
+                    onRetry={() => setExportStep('confirm')}
+                    onResetTeamSelection={handleResetAll}
+                />
+            </div>
         </div>
     );
 }
+            

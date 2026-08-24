@@ -53,13 +53,63 @@ body {
   min-height: 100vh;
 }
 
-/* Dostosowanie kontenera pod desktop (PC) */
-#root {
+/* Układ całej aplikacji z priorytetem dla Navbaru */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Pasek Górny (Navbar) na pełną szerokość */
+.navbar {
   width: 100%;
-  max-width: 1200px; /* Zwiększono z 520px na 1200px pod widok PC */
+  background-color: var(--bg-card);
+  border-bottom: 1px solid var(--border-color);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.navbar-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navbar-title {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Główny kontener aplikacji */
+#root,
+.main-content {
+  width: 100%;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 1.5rem 1rem;
   box-sizing: border-box;
+  flex: 1;
 }
 
 /* Header & Powiększone Logo BLS */
@@ -74,23 +124,17 @@ body {
 /* Wygląd i skalowanie logo */
 .bls-logo {
   width: 100%;
-  max-height: 180px; /* Ograniczenie wysokości zapobiega spłaszczaniu/rozciąganiu na mobilce */
-  object-fit: contain; /* Zachowuje naturalne proporcje obrazu */
+  max-height: 180px;
+  object-fit: contain;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-main);
+  display: block;
 }
 
 .header-subtitle {
   color: var(--text-secondary);
   font-size: 1rem;
   margin: 0;
-}
-
-.top-bar {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end; /* Suwak po prawej stronie nad logo */
-  margin-bottom: 0.75rem;
 }
 
 /* Card kontener */
@@ -155,22 +199,22 @@ body {
   max-height: 520px;
   overflow-y: auto;
   display: grid;
-  grid-template-columns: 1fr; /* 1 kolumna na mobile */
+  grid-template-columns: 1fr;
   gap: 10px;
   margin-bottom: 1.25rem;
   padding-right: 4px;
 }
 
-/* Layout na PC (zwiększamy do 2 lub 3 kolumn w zależności od szerokości) */
+/* Layout na PC */
 @media (min-width: 768px) {
   .team-list {
-    grid-template-columns: repeat(2, 1fr); /* Tablet / mniejszy ekran */
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1024px) {
   .team-list {
-    grid-template-columns: repeat(3, 1fr); /* 3 Kolumny na PC */
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
@@ -185,7 +229,7 @@ body {
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.15s ease-in-out;
-  min-height: 54px; /* Trzyma stałą wysokość kafelka */
+  min-height: 54px;
 }
 
 .team-item:hover {
@@ -203,7 +247,7 @@ body {
   align-items: center;
   gap: 12px;
   flex: 1;
-  min-width: 0; /* Kluczowe dla zawijania tekstu w flexboxie */
+  min-width: 0;
 }
 
 .team-logo {
@@ -215,14 +259,12 @@ body {
   flex-shrink: 0;
 }
 
-/* Dwu-linijkowy tekst z zawijaniem (Multi-line wrap) */
+/* Dwu-linijkowy tekst z zawijaniem */
 .team-name {
   font-weight: 600;
   font-size: 0.9rem;
   line-height: 1.25;
   color: var(--text-primary);
-
-  /* Pozwala na zawinięcie do max 2 linijek */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -272,12 +314,12 @@ body {
   border: 1px solid var(--border-color);
 }
 
-/* darkmode/lightmode toggle btn*/
+/* Dark Mode / Light Mode Toggle Switch wewnątrz Navbaru */
 .theme-switch {
   position: relative;
   display: inline-block;
-  width: 56px;
-  height: 28px;
+  width: 50px;
+  height: 26px;
 }
 
 .theme-switch input {
@@ -295,26 +337,25 @@ body {
   bottom: 0;
   background-color: var(--bg-element);
   border: 1px solid var(--border-color);
-  transition: 0.3s;
+  transition: 0.3s ease;
   border-radius: 30px;
   display: flex;
   align-items: center;
-  padding: 2px;
 }
 
 .slider .icon {
   position: absolute;
-  height: 22px;
-  width: 22px;
-  left: 3px;
+  height: 20px;
+  width: 20px;
+  left: 2px;
   bottom: 2px;
   background-color: var(--bg-card);
   border-radius: 50%;
-  transition: 0.3s;
+  transition: 0.3s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 11px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
@@ -324,5 +365,33 @@ body {
 }
 
 .theme-switch input:checked + .slider .icon {
-  transform: translateX(27px);
+  transform: translateX(24px);
+}
+
+
+/* Stylizacja linku do strony głównej na pasku */
+.navbar-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  color: var(--text-primary);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navbar-link:hover {
+  background-color: var(--bg-element);
+  color: var(--accent-color);
+}
+
+.external-icon {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  transition: color 0.2s ease;
+}
+
+.navbar-link:hover .external-icon {
+  color: var(--accent-color);
 }
