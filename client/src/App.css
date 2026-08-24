@@ -1,67 +1,244 @@
-/* Stylizacja listy w stylu Flashscore */
-.team-list {
-  max-height: 380px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 1.5rem;
-  padding-right: 2px;
+:root {
+  --bg-main: #0f1015;
+  --bg-card: #181920;
+  --bg-element: #222430;
+  --bg-element-hover: #2c2f3e;
+  --bg-element-active: #2a2d54;
+
+  --border-color: #2e3142;
+  --border-focus: #646cff;
+
+  --text-primary: #f3f4f6;
+  --text-secondary: #9ca3af;
+  --text-muted: #6b7280;
+
+  --accent-color: #646cff;
+  --accent-hover: #535bf2;
+
+  --radius-lg: 16px;
+  --radius-md: 10px;
+  --radius-sm: 6px;
+
+  --shadow-main: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
+body {
+  margin: 0;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+/* Dostosowanie kontenera pod desktop (PC) */
+#root {
+  width: 100%;
+  max-width: 1200px; /* Zwiększono z 520px na 1200px pod widok PC */
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+  box-sizing: border-box;
+}
+
+/* Header & Powiększone Logo BLS */
+.header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; /* Zapewnia pełną szerokość w stosunku do #root */
+}
+
+.bls-logo {
+  width: 100%; /* Rozciąga logo do krawędzi karty */
+  max-width: 100%; /* Usuwa limit w pikselach, dzięki czemu dorównuje karcie */
+  height: auto;
+  margin-bottom: 0.5rem;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+  object-fit: contain;
+}
+
+.header-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Card kontener */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-main);
+}
+
+/* Wyszukiwarka i przełącznik ligi */
+.league-switch {
+  display: flex;
+  background: var(--bg-element);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  margin-bottom: 1rem;
+  gap: 4px;
+}
+
+.tab-button {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
+}
+
+.tab-button.active {
+  background: var(--accent-color);
+  color: #ffffff;
+}
+
+.search-box {
+  margin-bottom: 1rem;
+}
+
+.search-box input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-element);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--border-focus);
+}
+
+/* GRID / Lista Drużyn - Responsywność */
+.team-list {
+  max-height: 520px;
+  overflow-y: auto;
+  display: grid;
+  grid-template-columns: 1fr; /* 1 kolumna na mobile */
+  gap: 10px;
+  margin-bottom: 1.25rem;
+  padding-right: 4px;
+}
+
+/* Layout na PC (zwiększamy do 2 lub 3 kolumn w zależności od szerokości) */
+@media (min-width: 768px) {
+  .team-list {
+    grid-template-columns: repeat(2, 1fr); /* Tablet / mniejszy ekran */
+  }
+}
+
+@media (min-width: 1024px) {
+  .team-list {
+    grid-template-columns: repeat(3, 1fr); /* 3 Kolumny na PC */
+  }
+}
+
+/* Kafelek pojedynczej drużyny */
 .team-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 14px;
-  background: #1e1e24;
-  border: 1px solid #2e303a;
-  border-radius: 8px;
+  padding: 12px 14px;
+  background: var(--bg-element);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: all 0.15s ease-in-out;
+  min-height: 54px; /* Trzyma stałą wysokość kafelka */
 }
 
 .team-item:hover {
-  background: #282a36;
-  border-color: #44475a;
+  background: var(--bg-element-hover);
+  border-color: var(--border-focus);
 }
 
 .team-item.selected {
-  border-color: #646cff;
-  background: #25284a;
+  border-color: var(--accent-color);
+  background: var(--bg-element-active);
 }
 
-/* Lewa strona: Logo + Nazwa */
 .team-info {
   display: flex;
   align-items: center;
   gap: 12px;
-  overflow: hidden;
+  flex: 1;
+  min-width: 0; /* Kluczowe dla zawijania tekstu w flexboxie */
 }
 
 .team-logo {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   object-fit: contain;
-  border-radius: 4px;
-  background: #2a2a2a;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
   flex-shrink: 0;
 }
 
+/* Dwu-linijkowy tekst z zawijaniem (Multi-line wrap) */
 .team-name {
   font-weight: 600;
-  font-size: 0.95rem;
-  color: #f3f4f6;
-  white-space: nowrap;
+  font-size: 0.9rem;
+  line-height: 1.25;
+  color: var(--text-primary);
+
+  /* Pozwala na zawinięcie do max 2 linijek */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
+  word-break: break-word;
 }
 
-/* Prawa strona: Komentarz */
 .team-comment {
-  font-size: 0.8rem;
-  color: #8b949e;
+  font-size: 0.75rem;
+  color: var(--text-muted);
   font-weight: 400;
   white-space: nowrap;
-  margin-left: 12px;
+  margin-left: 10px;
+  flex-shrink: 0;
+}
+
+/* Estetyczny scrollbar dla listy */
+.team-list::-webkit-scrollbar {
+  width: 6px;
+}
+.team-list::-webkit-scrollbar-track {
+  background: var(--bg-card);
+}
+.team-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+}
+
+/* Przycisk akcji */
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent-color);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.submit-btn:disabled {
+  background: var(--bg-element);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  border: 1px solid var(--border-color);
 }

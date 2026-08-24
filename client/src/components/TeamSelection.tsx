@@ -30,6 +30,10 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                 }
 
                 const data: Team[] = await response.json();
+                data.filter((team) => {
+                    const invalidNames = ['najnowsze wiadomości', 'błąd', 'szanowni użytkownicy'];
+                    return !invalidNames.some((invalid) => team.name.toLowerCase().includes(invalid));
+                });
                 setTeams(data);
 
                 if (selectedTeamId) {

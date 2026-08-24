@@ -78,10 +78,18 @@ public partial class LigspaceScraper(HttpClient httpClient)
                 var nameNode = doc.DocumentNode.SelectSingleNode("//div[@id='main']//h2");
 
                 var cleanName = HttpUtility.HtmlDecode(nameNode!.InnerText).Trim();
+                
+                var invalidNames = new[] 
+                { 
+                    "Błąd", 
+                    "Najnowsze wiadomości", 
+                    "Wiadomości", 
+                    "Szanowni użytkownicy",
+                    "Strona główna"
+                };
 
                 if (string.IsNullOrWhiteSpace(cleanName) || 
-                    cleanName.Equals("Błąd", StringComparison.OrdinalIgnoreCase) ||
-                    cleanName.Contains("Szanowni użytkownicy", StringComparison.OrdinalIgnoreCase))
+                    invalidNames.Any(invalid => cleanName.Contains(invalid, StringComparison.OrdinalIgnoreCase)))
                 {
                     return null;
                 }
