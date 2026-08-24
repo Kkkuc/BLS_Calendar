@@ -20,8 +20,8 @@ export const MatchList: React.FC<MatchListProps> = ({ teamId, teamName, onExport
             setLoading(true);
             setError(null);
             try {
-                // Wywołanie zaktualizowanego endpointu w MatchesController (zamiast sztywnego http://localhost:5184 idzie przez proxy Vite)
-                const response = await fetch(`/api/matches/unplayed/${teamId}`);
+                // Poprawiony URL zgodny z TeamsController
+                const response = await fetch(`/api/teams/${teamId}/matches`);
 
                 if (!response.ok) {
                     throw new Error('Nie udało się pobrać listy nierozegranych meczów.');

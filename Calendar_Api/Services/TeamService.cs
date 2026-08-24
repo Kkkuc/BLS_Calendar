@@ -23,7 +23,7 @@ public class TeamService(LigspaceScraper scraper, IGoogleCalendarService calenda
             .ToList();
     }
 
-    public async Task<ExportResponseDto> ExportMatchesToGoogleCalendarAsync(string accessToken, List<MatchDto> matches)
+    /*public async Task<ExportResponseDto> ExportMatchesToGoogleCalendarAsync(string accessToken, List<MatchDto> matches)
     {
         int addedCount = 0;
         int skippedCount = 0;
@@ -65,5 +65,5 @@ public class TeamService(LigspaceScraper scraper, IGoogleCalendarService calenda
         }
 
         return new ExportResponseDto(new ExportSummaryDto(addedCount, skippedCount), details);
-    }
+    }*/
 }

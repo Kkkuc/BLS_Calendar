@@ -1,4 +1,6 @@
 using System.Net;
+using Calendar_Api.DTOs;
+using Calendar_Core.Models;
 using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
@@ -11,12 +13,50 @@ public class GoogleCalendarService : IGoogleCalendarService
 {
     private const string ApplicationName = "BLS Calendar Integrator";
 
+    public async Task<ExportResponseDto> ExportMatchesAsync(string accessToken, List<MatchDto> matches)
+    {
+        int addedCount = 0;
+        var details = new List<MatchExportResultDetailsDto>();
+
+        foreach (var dto in matches)
+        {
+            var matchData = new MatchData(
+                dto.Host, dto.Guest, dto.HostSetsResult, 
+                dto.GuestSetsResult, dto.Round, dto.Status, 
+                dto.MatchDate, dto.Court
+            );
+
+            var matchLabel = $"{matchData.Host} vs {matchData.Guest}";
+            var title = $"BLS Match: {matchLabel}";
+            
+            var description = "Brak informacji o boisku";
+            if (!string.IsNullOrWhiteSpace(matchData.Court))
+            {
+                description = $"Boisko: {matchData.Court}";
+            }
+
+            var added = await AddEventAsync(
+                accessToken: accessToken,
+                startDate: matchData.MatchDate,
+                title: title,
+                description: description
+            );
+
+            if (added)
+            {
+                addedCount++;
+                details.Add(new MatchExportResultDetailsDto(matchLabel, "ADDED", "Pomyślnie dodano do kalendarza."));
+            }
+        }
+
+        return new ExportResponseDto(new ExportSummaryDto(addedCount, 0), details);
+    }
+
     public async Task<bool> AddEventAsync(
         string accessToken,
         DateTime startDate,
         string title,
         string? description,
-        //string eventId,
         DateTime? endDate = null)
     {
         endDate ??= startDate.AddHours(2);
@@ -28,9 +68,9 @@ public class GoogleCalendarService : IGoogleCalendarService
             ApplicationName = ApplicationName,
         });
 
+        // Brak ustawiania właściwości Id -> Google wygeneruje je sam i zawsze utworzy nowe wydarzenie
         var newEvent = new Event
         {
-            //Id = eventId,
             Summary = title,
             Description = description,
             Start = new EventDateTime { DateTime = startDate, TimeZone = "Europe/Warsaw" },
@@ -42,9 +82,10 @@ public class GoogleCalendarService : IGoogleCalendarService
             await service.Events.Insert(newEvent, "primary").ExecuteAsync();
             return true;
         }
-        catch (GoogleApiException ex) when (ex.HttpStatusCode == HttpStatusCode.Conflict)
+        catch (GoogleApiException ex)
         {
-            return false; // Duplikat wydarzenia
+            Console.WriteLine($"[Google Calendar Error]: {ex.HttpStatusCode} - {ex.Message}");
+            throw;
         }
     }
 }

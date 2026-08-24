@@ -22,7 +22,7 @@ public class TeamsController(ITeamService teamService) : ControllerBase
         return Ok(matches);
     }
 
-    [HttpPost("export")]
+    /*[HttpPost("export")]
     public async Task<ActionResult<ExportResponseDto>> ExportMatches([FromBody] ExportMatchesRequestDto request)
     {
         if (!Request.Headers.TryGetValue("Authorization", out var authHeader) || string.IsNullOrWhiteSpace(authHeader))
@@ -43,5 +43,5 @@ public class TeamsController(ITeamService teamService) : ControllerBase
 
         var result = await teamService.ExportMatchesToGoogleCalendarAsync(accessToken, request.Matches);
         return Ok(result);
-    }
+    }*/
 }
