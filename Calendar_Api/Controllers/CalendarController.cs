@@ -9,7 +9,7 @@ namespace Calendar_Api.Controllers;
 public class CalendarController(IGoogleCalendarService calendarService) : ControllerBase
 {
     [HttpPost("export")]
-    public async Task<ActionResult<ExportResponseDto>> ExportMatches([FromBody] ExportMatchesRequestDto? request)
+    public async Task<ActionResult<ExportResponseDto>> ExportMatches([FromBody] ExportRequestDto? request)
     {
         if (!Request.Headers.TryGetValue("Authorization", out var authHeader) || string.IsNullOrWhiteSpace(authHeader))
         {

@@ -16,7 +16,7 @@ public class GoogleCalendarService : IGoogleCalendarService
     public async Task<ExportResponseDto> ExportMatchesAsync(string accessToken, List<MatchDto> matches)
     {
         var addedCount = 0;
-        var details = new List<MatchExportResultDetailsDto>();
+        var details = new List<MatchResultDto>();
 
         foreach (var dto in matches)
         {
@@ -48,7 +48,7 @@ public class GoogleCalendarService : IGoogleCalendarService
             }
             
             addedCount++;
-            details.Add(new MatchExportResultDetailsDto(matchLabel, "ADDED", "Pomyślnie dodano do kalendarza."));
+            details.Add(new MatchResultDto(matchLabel, "ADDED", "Pomyślnie dodano do kalendarza."));
         }
 
         return new ExportResponseDto(new ExportSummaryDto(addedCount), details);
