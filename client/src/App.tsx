@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Team } from './types';
 import type { MatchDto } from './types/match';
 import TeamSelection from './components/TeamSelection';
@@ -13,6 +13,19 @@ export default function App() {
 
     const [exportStep, setExportStep] = useState<'closed' | 'confirm' | 'summary'>('closed');
     const [summaryData, setSummaryData] = useState<ExportSummaryData | null>(null);
+
+    const [theme, setTheme] = useState<'dark' | 'light'>(() => {
+        return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
+    });
+    
+    useEffect(() => {
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    const toggleTheme = () => {
+        setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
+    };
 
     const handleOpenExportModal = (matches: MatchDto[]) => {
         setMatchesToExport(matches);
@@ -34,6 +47,15 @@ export default function App() {
     return (
         <div className="app-container">
             <header className="header">
+                <button
+                    onClick={toggleTheme}
+                    className="theme-toggle-btn"
+                    title="Zmień motyw kolorystyczny"
+                >
+                    {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
+                </button>
+                
+                
                 <img
                     src="public/front_logo_BLS.jpg"
                     alt="Białostocka Liga Sportu"
