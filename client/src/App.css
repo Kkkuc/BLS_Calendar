@@ -420,3 +420,173 @@ body {
 .navbar-link:hover .external-icon {
   color: var(--accent-color);
 }
+
+/* Stylizacja dedykowana dla widoku meczów */
+.match-list-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: calc(100vh - 240px);
+  box-sizing: border-box;
+}
+
+.team-header-card {
+  margin-bottom: 0.75rem;
+  flex-shrink: 0;
+}
+
+.back-btn {
+  max-width: 100px;
+  padding: 6px 12px;
+}
+
+/* Wymuszenie 2 kolumn na PC */
+.matches-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  margin-bottom: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .matches-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.matches-column {
+  background: var(--bg-element);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.column-title {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.count-badge {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.scrollable-matches-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+/* Kafelki pojedynczych meczów */
+.match-card-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.match-card-item:hover {
+  border-color: var(--border-focus);
+}
+
+.match-card-item.selected {
+  border-color: var(--accent-color);
+  background: var(--bg-element-active);
+}
+
+.match-card-item.unclickable {
+  cursor: default;
+}
+
+.match-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  margin-bottom: 4px;
+}
+
+.match-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.round-badge {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.match-date {
+  color: var(--text-muted);
+}
+
+.match-teams {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.match-teams-score {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.match-court {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.score-tag {
+  background: var(--accent-color);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+}
+
+.submit-btn-wrapper {
+  flex-shrink: 0;
+}
+
+.accent-checkbox {
+  accent-color: var(--accent-color);
+}
+
+.empty-text {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 1rem 0;
+}

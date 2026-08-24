@@ -90,15 +90,14 @@ export const MatchList: React.FC<MatchListProps> = ({ team, onBack, onExportSele
         });
     };
 
-    if (!team) return <div className="p-4 text-center text-gray-500">Wybierz drużynę.</div>;
+    if (!team) return <div className="card text-center">Wybierz drużynę.</div>;
     if (loading) return <div className="card loading-state"><p>Ładowanie terminarza...</p></div>;
     if (error) return <div className="card error-state"><p>{error}</p>{onBack && <button onClick={onBack}>🔄 Zmień</button>}</div>;
 
     return (
-        <div className="card flex flex-col h-full overflow-hidden">
-
-            {/* 1. KAFELEK GÓRNY: LOGO + NAZWA + COFNIJ */}
-            <div className="team-item mb-3 flex-shrink-0">
+        <div className="card match-list-container">
+            {/* 1. GÓRNY KAFELEK: LOGO, NAZWA I COFNIJ */}
+            <div className="team-item team-header-card">
                 <div className="team-info">
                     <img
                         src={team.logoUrl || defaultLogo}
@@ -114,35 +113,34 @@ export const MatchList: React.FC<MatchListProps> = ({ team, onBack, onExportSele
                 {onBack && (
                     <button
                         onClick={onBack}
-                        className="tab-button"
-                        style={{ maxWidth: '100px', padding: '6px 12px' }}
+                        className="tab-button back-btn"
                     >
                         ⇐ Cofnij
                     </button>
                 )}
             </div>
 
-            {/* 2. DWA KAFELKI SEKCJI: LEWY (NADCHODZĄCE), PRAWY (OSTATNIE) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1 min-h-0 overflow-y-auto pr-1 mb-3">
+            {/* 2. DWA KAFELKI SEKCJI (SIATKA 2-KOLUMNOWA) */}
+            <div className="matches-grid">
 
-                {/* KAFELEK LEWY: NADCHODZĄCE MECZE */}
-                <div className="card flex flex-col min-h-0" style={{ padding: '10px' }}>
-                    <div className="flex justify-between items-center mb-2 pb-2 border-b border-[var(--border-color)] flex-shrink-0">
-                        <div className="flex items-center gap-2">
+                {/* SEKCJA LEWA: NADCHODZĄCE MECZE */}
+                <div className="matches-column">
+                    <div className="column-header">
+                        <label className="checkbox-label">
                             <input
                                 type="checkbox"
                                 checked={selectedMatches.length === upcomingMatches.length && upcomingMatches.length > 0}
                                 onChange={toggleSelectAllUpcoming}
-                                className="accent-[var(--accent-color)]"
+                                className="accent-checkbox"
                             />
-                            <h3 className="font-bold text-sm margin-0">Nadchodzące mecze</h3>
-                        </div>
-                        <span className="text-xs text-[var(--text-muted)]">({upcomingMatches.length})</span>
+                            <span className="column-title">Nadchodzące mecze</span>
+                        </label>
+                        <span className="count-badge">({upcomingMatches.length})</span>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+                    <div className="scrollable-matches-list">
                         {upcomingMatches.length === 0 ? (
-                            <p className="text-xs text-[var(--text-muted)] py-4 text-center">Brak nadchodzących meczów.</p>
+                            <p className="empty-text">Brak nadchodzących meczów.</p>
                         ) : (
                             upcomingMatches.map((match, idx) => {
                                 const selected = isMatchSelected(match);
@@ -150,26 +148,25 @@ export const MatchList: React.FC<MatchListProps> = ({ team, onBack, onExportSele
                                     <div
                                         key={idx}
                                         onClick={() => toggleSelectMatch(match)}
-                                        className={`team-item cursor-pointer flex-col align-stretch ${selected ? 'selected' : ''}`}
-                                        style={{ minHeight: 'auto', padding: '10px' }}
+                                        className={`match-card-item ${selected ? 'selected' : ''}`}
                                     >
-                                        <div className="flex justify-between items-center text-xs mb-1">
-                                            <div className="flex items-center gap-2">
+                                        <div className="match-card-top">
+                                            <div className="match-checkbox-group">
                                                 <input
                                                     type="checkbox"
                                                     checked={selected}
                                                     onChange={() => toggleSelectMatch(match)}
                                                     onClick={(e) => e.stopPropagation()}
-                                                    className="accent-[var(--accent-color)]"
+                                                    className="accent-checkbox"
                                                 />
-                                                <span className="font-semibold">Kolejka {match.round}</span>
+                                                <span className="round-badge">Kolejka {match.round}</span>
                                             </div>
-                                            <span className="text-[var(--text-muted)]">{formatDate(match.matchDate)}</span>
+                                            <span className="match-date">{formatDate(match.matchDate)}</span>
                                         </div>
-                                        <div className="text-xs font-semibold my-1 pl-5">
-                                            {match.host} - {match.guest}
+                                        <div className="match-teams">
+                                            {match.host} – {match.guest}
                                         </div>
-                                        <div className="text-[11px] text-[var(--text-muted)] pl-5">
+                                        <div className="match-court">
                                             📍 {match.court || 'Sektor nieznany'}
                                         </div>
                                     </div>
@@ -179,30 +176,26 @@ export const MatchList: React.FC<MatchListProps> = ({ team, onBack, onExportSele
                     </div>
                 </div>
 
-                {/* KAFELEK PRAWY: OSTATNIE MECZE */}
-                <div className="card flex flex-col min-h-0" style={{ padding: '10px' }}>
-                    <div className="flex justify-between items-center mb-2 pb-2 border-b border-[var(--border-color)] flex-shrink-0">
-                        <h3 className="font-bold text-sm margin-0">Ostatnie mecze</h3>
-                        <span className="text-xs text-[var(--text-muted)]">({playedMatches.length})</span>
+                {/* SEKCJA PRAWA: OSTATNIE MECZE */}
+                <div className="matches-column">
+                    <div className="column-header">
+                        <span className="column-title">Ostatnie mecze</span>
+                        <span className="count-badge">({playedMatches.length})</span>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto space-y-2 pr-1">
+                    <div className="scrollable-matches-list">
                         {playedMatches.length === 0 ? (
-                            <p className="text-xs text-[var(--text-muted)] py-4 text-center">Brak rozegranych meczów.</p>
+                            <p className="empty-text">Brak rozegranych meczów.</p>
                         ) : (
                             playedMatches.map((match, idx) => (
-                                <div
-                                    key={idx}
-                                    className="team-item flex-col align-stretch"
-                                    style={{ minHeight: 'auto', padding: '10px', cursor: 'default' }}
-                                >
-                                    <div className="flex justify-between text-xs text-[var(--text-muted)] mb-1">
-                                        <span>Kolejka {match.round}</span>
-                                        <span>{formatDate(match.matchDate)}</span>
+                                <div key={idx} className="match-card-item unclickable">
+                                    <div className="match-card-top">
+                                        <span className="round-badge">Kolejka {match.round}</span>
+                                        <span className="match-date">{formatDate(match.matchDate)}</span>
                                     </div>
-                                    <div className="flex justify-between items-center text-xs font-semibold">
+                                    <div className="match-teams-score">
                                         <span>{match.host} vs {match.guest}</span>
-                                        <span className="tab-button active" style={{ padding: '2px 8px', fontSize: '11px', flex: 'none' }}>
+                                        <span className="score-tag">
                                             {match.hostSetsResult} : {match.guestSetsResult}
                                         </span>
                                     </div>
@@ -214,12 +207,12 @@ export const MatchList: React.FC<MatchListProps> = ({ team, onBack, onExportSele
 
             </div>
 
-            {/* 3. KAFELEK DOLNY: PRZYCISK EKSPORTU NA CAŁĄ SZEROKOŚĆ */}
-            <div className="flex-shrink-0">
+            {/* 3. DOLNY PRZYCISK NA CAŁĄ SZEROKOŚĆ */}
+            <div className="submit-btn-wrapper">
                 <button
                     onClick={() => onExportSelected && onExportSelected(selectedMatches)}
                     disabled={selectedMatches.length === 0}
-                    className="submit-btn text-sm py-3 w-full font-bold"
+                    className="submit-btn"
                 >
                     {selectedMatches.length > 0
                         ? `Dodaj wybrane do kalendarza (${selectedMatches.length})`

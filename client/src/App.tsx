@@ -87,26 +87,11 @@ export default function App() {
                     {!selectedTeam ? (
                         <TeamSelection onSelectTeam={(team) => setSelectedTeam(team)}/>
                     ) : (
-                        <div className="selected-team-container">
-                            <div className="card mb-4 flex justify-between items-center">
-                                <div>
-                                    <span className="text-xs text-gray-400">Wybrany zespół:</span>
-                                    <h2 className="text-lg font-bold">{selectedTeam.name}</h2>
-                                </div>
-                                <button
-                                    className="change-team-btn"
-                                    onClick={() => setSelectedTeam(null)}
-                                >
-                                    🔄 Zmień
-                                </button>
-                            </div>
-
-                            <MatchList
-                                team={selectedTeam}
-                                onBack={() => setSelectedTeam(null)}
-                                onExportSelected={handleOpenExportModal}
-                            />
-                        </div>
+                        <MatchList
+                            team={selectedTeam}
+                            onBack={() => setSelectedTeam(null)}
+                            onExportSelected={handleOpenExportModal}
+                        />
                     )}
                 </main>
 
