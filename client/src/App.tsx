@@ -48,16 +48,27 @@ export default function App() {
         <div className="app-container">
             <nav className="navbar">
                 <div className="navbar-container">
+                    <div className="navbar-brand">
+                        <a
+                            href="https://blssiatkowka.ligspace.pl/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="navbar-link"
+                        >
+                            <span className="navbar-title">Strona główna ligi ↗</span>
+                        </a>
 
-                    <a
-                        href="https://blssiatkowka.ligspace.pl/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="navbar-link"
-                    >
-                        <span className="navbar-title">Strona główna ligi↗</span>
-                    </a>
-                    
+                        {/* Przycisk powrotu w Navbarze (widoczny gdy wybrano drużynę) */}
+                        {selectedTeam && (
+                            <button
+                                onClick={() => setSelectedTeam(null)}
+                                className="tab-button back-navbar-btn"
+                            >
+                                ← Powrót
+                            </button>
+                        )}
+                    </div>
+
                     <div className="navbar-actions">
                         <label className="theme-switch" title="Zmień motyw">
                             <input
@@ -66,8 +77,8 @@ export default function App() {
                                 checked={theme === 'light'}
                             />
                             <span className="slider">
-                                <span className="icon">{theme === 'dark' ? '🌙' : '☀️'}</span>
-                            </span>
+                    <span className="icon">{theme === 'dark' ? '🌙' : '☀️'}</span>
+                </span>
                         </label>
                     </div>
                 </div>

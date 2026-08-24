@@ -94,30 +94,40 @@ export const MatchList: React.FC<MatchListProps> = ({ team, onBack, onExportSele
     if (loading) return <div className="card loading-state"><p>Ładowanie terminarza...</p></div>;
     if (error) return <div className="card error-state"><p>{error}</p>{onBack && <button onClick={onBack}>🔄 Zmień</button>}</div>;
 
+    // Generowanie zewnętrznych linków ligowych
+    const profileUrl = `https://blssiatkowka.ligspace.pl/index.php?mod=Teams&ac=Profile&t_id=${team.id}`;
+    const playersUrl = `https://blssiatkowka.ligspace.pl/index.php?mod=Teams&ac=TeamPlayers&t_id=${team.id}`;
+    const scheduleUrl = `https://blssiatkowka.ligspace.pl/index.php?mod=Teams&ac=TeamSchedule&t_id=${team.id}`;
+
     return (
         <div className="card match-list-container">
-            {/* 1. GÓRNY KAFELEK: LOGO, NAZWA I COFNIJ */}
-            <div className="team-item team-header-card">
-                <div className="team-info">
-                    <img
-                        src={team.logoUrl || defaultLogo}
-                        alt={team.name}
-                        className="team-logo"
-                        onError={(e) => {
-                            (e.target as HTMLImageElement).src = defaultLogo;
-                        }}
-                    />
-                    <span className="team-name">{team.name}</span>
-                </div>
 
-                {onBack && (
-                    <button
-                        onClick={onBack}
-                        className="tab-button back-btn"
-                    >
-                        ⇐ Cofnij
-                    </button>
-                )}
+            {/* 1. GÓRNY KAFELEK: DUŻE LOGO, NAZWA I LINKI DO LIGSPACE */}
+            <div className="team-header-card mb-3">
+                <img
+                    src={team.logoUrl || defaultLogo}
+                    alt={team.name}
+                    className="team-logo-large"
+                    onError={(e) => {
+                        (e.target as HTMLImageElement).src = defaultLogo;
+                    }}
+                />
+
+                <div className="team-header-details">
+                    <h2 className="team-title-large">{team.name}</h2>
+
+                    <div className="team-external-links">
+                        <a href={profileUrl} target="_blank" rel="noopener noreferrer" className="league-link">
+                            📋 Profil
+                        </a>
+                        <a href={playersUrl} target="_blank" rel="noopener noreferrer" className="league-link">
+                            👥 Zawodnicy
+                        </a>
+                        <a href={scheduleUrl} target="_blank" rel="noopener noreferrer" className="league-link">
+                            📅 Terminarz
+                        </a>
+                    </div>
+                </div>
             </div>
 
             {/* 2. DWA KAFELKI SEKCJI (SIATKA 2-KOLUMNOWA) */}
@@ -194,7 +204,7 @@ export const MatchList: React.FC<MatchListProps> = ({ team, onBack, onExportSele
                                         <span className="match-date">{formatDate(match.matchDate)}</span>
                                     </div>
                                     <div className="match-teams-score">
-                                        <span>{match.host} vs {match.guest}</span>
+                                        <span className="truncate pr-2">{match.host} vs {match.guest}</span>
                                         <span className="score-tag">
                                             {match.hostSetsResult} : {match.guestSetsResult}
                                         </span>
