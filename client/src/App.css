@@ -432,7 +432,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  max-height: calc(100vh - 240px);
   box-sizing: border-box;
 }
 
@@ -537,7 +536,9 @@ body {
   .matches-grid {
     grid-template-columns: 1fr 1fr;
   }
+  
 }
+
 
 .matches-column {
   background: var(--bg-element);
@@ -546,7 +547,7 @@ body {
   padding: 10px;
   display: flex;
   flex-direction: column;
-  min-height: 0;
+  height: 380px;
 }
 
 .column-header {
