@@ -15,7 +15,7 @@ public class GoogleCalendarService : IGoogleCalendarService
 
     public async Task<ExportResponseDto> ExportMatchesAsync(string accessToken, List<MatchDto> matches)
     {
-        int addedCount = 0;
+        var addedCount = 0;
         var details = new List<MatchExportResultDetailsDto>();
 
         foreach (var dto in matches)
@@ -49,7 +49,7 @@ public class GoogleCalendarService : IGoogleCalendarService
             }
         }
 
-        return new ExportResponseDto(new ExportSummaryDto(addedCount, 0), details);
+        return new ExportResponseDto(new ExportSummaryDto(addedCount), details);
     }
 
     public async Task<bool> AddEventAsync(
@@ -67,8 +67,7 @@ public class GoogleCalendarService : IGoogleCalendarService
             HttpClientInitializer = credential,
             ApplicationName = ApplicationName,
         });
-
-        // Brak ustawiania właściwości Id -> Google wygeneruje je sam i zawsze utworzy nowe wydarzenie
+        
         var newEvent = new Event
         {
             Summary = title,

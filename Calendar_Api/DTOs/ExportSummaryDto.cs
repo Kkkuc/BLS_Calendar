@@ -1,3 +1,3 @@
 namespace Calendar_Api.DTOs;
 
-public record ExportSummaryDto(int Added, int Skipped);
+public record ExportSummaryDto(int Added);

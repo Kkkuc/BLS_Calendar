@@ -3,21 +3,31 @@ import type { Team } from './types';
 import type { MatchDto } from './types/match';
 import TeamSelection from './components/TeamSelection';
 import { MatchList } from './components/MatchList';
-import { ExportModal } from './components/ExportModal';
+import { ExportConfirmModal, type ExportSummaryData } from './components/ExportConfirmModal';
+import { ExportSummaryModal } from './components/ExportSummaryModal';
 import './App.css';
 
 export default function App() {
     const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
     const [matchesToExport, setMatchesToExport] = useState<MatchDto[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+    // Zarządzanie etapami eksportu
+    const [exportStep, setExportStep] = useState<'closed' | 'confirm' | 'summary'>('closed');
+    const [summaryData, setSummaryData] = useState<ExportSummaryData | null>(null);
 
     const handleOpenExportModal = (matches: MatchDto[]) => {
         setMatchesToExport(matches);
-        setIsModalOpen(true);
+        setExportStep('confirm');
+    };
+
+    const handleExportSuccess = (data: ExportSummaryData) => {
+        setSummaryData(data);
+        setExportStep('summary');
     };
 
     const handleResetAll = () => {
-        setIsModalOpen(false);
+        setExportStep('closed');
+        setSummaryData(null);
         setMatchesToExport([]);
         setSelectedTeam(null);
     };
@@ -56,11 +66,19 @@ export default function App() {
                 )}
             </main>
 
-            {/* Modal eksportu */}
-            <ExportModal
-                isOpen={isModalOpen}
+            {/* Modal potwierdzenia eksportu */}
+            <ExportConfirmModal
+                isOpen={exportStep === 'confirm'}
                 matches={matchesToExport}
-                onClose={() => setIsModalOpen(false)}
+                onClose={() => setExportStep('closed')}
+                onSuccess={handleExportSuccess}
+            />
+
+            {/* Modal podsumowania eksportu */}
+            <ExportSummaryModal
+                isOpen={exportStep === 'summary'}
+                summary={summaryData}
+                onRetry={() => setExportStep('confirm')}
                 onResetTeamSelection={handleResetAll}
             />
         </div>
