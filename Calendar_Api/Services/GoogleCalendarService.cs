@@ -1,6 +1,5 @@
-using System.Net;
 using Calendar_Api.DTOs;
-using Calendar_Core.Models;
+using Calendar_Api.Models;
 using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
@@ -13,6 +12,7 @@ public class GoogleCalendarService : IGoogleCalendarService
 {
     private const string ApplicationName = "BLS Calendar Integrator";
 
+    [Obsolete("Obsolete")]
     public async Task<ExportResponseDto> ExportMatchesAsync(string accessToken, List<MatchDto> matches)
     {
         var addedCount = 0;
@@ -42,16 +42,19 @@ public class GoogleCalendarService : IGoogleCalendarService
                 description: description
             );
 
-            if (added)
+            if (!added)
             {
-                addedCount++;
-                details.Add(new MatchExportResultDetailsDto(matchLabel, "ADDED", "Pomyślnie dodano do kalendarza."));
+                continue;
             }
+            
+            addedCount++;
+            details.Add(new MatchExportResultDetailsDto(matchLabel, "ADDED", "Pomyślnie dodano do kalendarza."));
         }
 
         return new ExportResponseDto(new ExportSummaryDto(addedCount), details);
     }
 
+    [Obsolete("Obsolete")]
     public async Task<bool> AddEventAsync(
         string accessToken,
         DateTime startDate,

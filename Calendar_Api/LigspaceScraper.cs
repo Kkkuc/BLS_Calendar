@@ -1,10 +1,10 @@
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
-using Calendar_Core.Models;
+using Calendar_Api.Models;
 using HtmlAgilityPack;
 
-namespace Calendar_Core.Services;
+namespace Calendar_Api;
 
 public partial class LigspaceScraper(HttpClient httpClient)
 {
@@ -19,20 +19,23 @@ public partial class LigspaceScraper(HttpClient httpClient)
         doc.LoadHtml(html);
 
         var rows = doc.DocumentNode.SelectNodes("//tr[count(td)=6]");
-        if (rows == null) return [];
 
         var matches = new List<MatchData>();
 
+        if (rows == null)
+        {
+            return matches;
+        }
         foreach (var row in rows)
         {
             var cells = row.SelectNodes("./td");
-            if (cells == null || cells.Count != 6) continue;
+            if (cells != null && cells.Count != 6) continue;
 
             try
             {
-                var pairs = CleanText(cells[0].InnerText);
+                var pairs = CleanText(cells![0].InnerText);
                 var (host, guest) = SplitPair(pairs);
-                
+
                 var status = CleanText(cells[1].InnerText);
                 var (result, dateStr) = ParseResultAndDate(cells[2].InnerHtml);
 
@@ -73,9 +76,8 @@ public partial class LigspaceScraper(HttpClient httpClient)
                 doc.LoadHtml(html);
 
                 var nameNode = doc.DocumentNode.SelectSingleNode("//div[@id='main']//h2");
-                if (nameNode == null) return null;
 
-                var cleanName = HttpUtility.HtmlDecode(nameNode.InnerText).Trim();
+                var cleanName = HttpUtility.HtmlDecode(nameNode!.InnerText).Trim();
 
                 if (string.IsNullOrWhiteSpace(cleanName) || 
                     cleanName.Equals("Błąd", StringComparison.OrdinalIgnoreCase) ||

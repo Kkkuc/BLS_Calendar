@@ -1,5 +1,5 @@
 using Calendar_Api.Services;
-using Calendar_Core.Services;
+using LigspaceScraper = Calendar_Api.LigspaceScraper;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,11 +1,8 @@
 using Calendar_Api.DTOs;
-using Calendar_Core;
-using Calendar_Core.Models;
-using Calendar_Core.Services;
 
 namespace Calendar_Api.Services;
 
-public class TeamService(LigspaceScraper scraper, IGoogleCalendarService calendarService) : ITeamService
+public class TeamService(LigspaceScraper scraper) : ITeamService
 {
     public async Task<List<TeamDto>> GetTeamsAsync()
     {

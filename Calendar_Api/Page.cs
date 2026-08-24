@@ -1,10 +1,10 @@
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
-using Calendar_Core.Models;
+using Calendar_Api.Models;
 using HtmlAgilityPack;
 
-namespace Calendar_Core;
+namespace Calendar_Api;
 
 public partial class Page
 {
@@ -42,10 +42,13 @@ public partial class Page
 
             var rows = doc.DocumentNode.SelectNodes("//tr[count(td)=6]");
 
-            foreach (var row in rows)
+            foreach (var row in rows!)
             {
                 var cells = row.SelectNodes("./td");
-                if (cells.Count != 6) continue;
+                if (cells!.Count != 6)
+                {
+                    continue;
+                }
 
                 try
                 {
@@ -141,11 +144,9 @@ public partial class Page
                 var html = await Client.GetStringAsync(profileUrl);
                 var doc = new HtmlDocument();
                 doc.LoadHtml(html);
-            
                 var nameNode = doc.DocumentNode.SelectSingleNode("//div[@id='main']//h2");
-                if (nameNode == null) return null;
 
-                var cleanName = HttpUtility.HtmlDecode(nameNode.InnerText).Trim();
+                var cleanName = HttpUtility.HtmlDecode(nameNode!.InnerText).Trim();
 
                 if (string.IsNullOrWhiteSpace(cleanName) || 
                     cleanName.Equals("Błąd", StringComparison.OrdinalIgnoreCase) ||
