@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import type { MatchDto } from '../types/match';
+import { apiFetch } from '../services/api.ts';
 
 export interface ExportSummaryData {
     added: number;
@@ -32,7 +33,7 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
 
     const sendMatchesToBackend = async (accessToken: string) => {
         try {
-            const response = await fetch('/api/calendar/export', {
+            const response = await apiFetch('/api/calendar/export', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

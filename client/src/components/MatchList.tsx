@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import type { MatchDto } from '../types/match';
 import type { Team } from '../types';
+import { apiFetch } from '../services/api.ts';
 
 interface MatchListProps {
     team: Team | null;
@@ -31,7 +32,7 @@ export const MatchList: React.FC<MatchListProps> = ({ team, onBack, onExportSele
             setLoading(true);
             setError(null);
             try {
-                const response = await fetch(`/api/teams/${team.id}/matches`);
+                const response = await apiFetch(`/api/teams/${team.id}/matches`);
                 if (!response.ok) {
                     throw new Error('Nie udało się pobrać terminarza meczów.');
                 }

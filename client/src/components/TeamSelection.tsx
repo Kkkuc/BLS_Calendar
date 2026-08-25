@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import type { Team } from '../types';
+import { apiFetch } from '../services/api.ts';
 
 interface TeamSelectionProps {
     onSelectTeam: (team: Team) => void;
@@ -24,7 +25,7 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                 setIsLoading(true);
                 setError(null);
 
-                const response = await fetch('/api/teams');
+                const response = await apiFetch('/api/teams');
                 if (!response.ok) {
                     throw new Error(`Błąd serwera HTTP: ${response.status}`);
                 }
