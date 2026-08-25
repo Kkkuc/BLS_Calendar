@@ -9,8 +9,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:5173", // Do testów lokalnych
-                "https://*.pages.dev"     // Wszystkie domeny Cloudflare Pages
+                "http://localhost:5173",
+                "https://bls-calendar.kakuc91.workers.dev",
+                "https://*.workers.dev",
+                "https://*.pages.dev"
             )
             .SetIsOriginAllowedToAllowWildcardSubdomains()
             .AllowAnyHeader()
