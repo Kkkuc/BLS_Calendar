@@ -40,7 +40,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
+app.MapGet("/health", () => Results.Ok("OK"));
 app.UseAuthorization();
 app.MapControllers();
 app.UseCors("AllowFrontend");
