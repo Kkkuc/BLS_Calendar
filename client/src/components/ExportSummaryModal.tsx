@@ -17,44 +17,46 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({
     if (!isOpen || !summary) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 text-center">
-                <div className="text-4xl mb-2">✅</div>
-                <h3 className="text-xl font-bold text-gray-800 mb-1">
-                    Eksport zakończony
-                </h3>
+        <div className="modal-overlay">
+            <div className="card modal-card text-center">
+                <div className="summary-icon">✅</div>
+                <h3 className="modal-title summary-title">Eksport zakończony</h3>
 
-                <p className="text-xs text-gray-600 mb-4">
-                    Dodano meczów: <span className="font-semibold text-green-600">{summary.added}</span>
+                <p className="modal-description">
+                    Dodano meczów: <strong className="summary-added-count">{summary.added}</strong>
                 </p>
 
-                <div className="max-h-48 overflow-y-auto mb-5 border border-gray-200 rounded p-2 text-xs text-left divide-y divide-gray-100 bg-gray-50">
-                    {summary.details.map((item, idx) => (
-                        <div key={idx} className="py-2 flex justify-between items-center gap-2">
-                            <span className="font-medium text-gray-800 truncate" title={item.match}>
-                                {item.match}
-                            </span>
-                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-green-100 text-green-700 border border-green-200 whitespace-nowrap">
-                                DODANO
-                            </span>
-                        </div>
-                    ))}
+                <div className="modal-matches-list scrollable-matches-list">
+                    {summary.details.length === 0 ? (
+                        <p className="empty-text">Pomyślnie przetworzono mecze.</p>
+                    ) : (
+                        summary.details.map((item, idx) => (
+                            <div key={idx} className="match-card-item unclickable modal-match-item">
+                                <span className="match-teams truncate" title={item.match}>
+                                    {item.match}
+                                </span>
+                                <span className="score-tag summary-tag">
+                                    DODANO
+                                </span>
+                            </div>
+                        ))
+                    )}
                 </div>
 
-                <div className="flex flex-col gap-2">
+                <div className="modal-actions-column">
                     <button
                         type="button"
-                        className="w-full py-2 px-4 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 font-medium text-xs transition"
+                        className="tab-button modal-retry-btn"
                         onClick={onRetry}
                     >
                         🔄 Wyślij ponowne żądanie
                     </button>
                     <button
                         type="button"
-                        className="w-full py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-xs transition"
+                        className="submit-btn"
                         onClick={onResetTeamSelection}
                     >
-                        🏠 Powrót do wyboru drużyny
+                        🏠 Wybór drużyny
                     </button>
                 </div>
             </div>

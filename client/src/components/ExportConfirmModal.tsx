@@ -70,61 +70,61 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
         loginAndExport();
     };
 
+    const formatDate = (rawDate: string | Date | undefined) => {
+        if (!rawDate) return '-';
+        return new Date(rawDate).toLocaleString('pl-PL', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    };
+
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6">
-                <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-lg font-bold text-gray-800">
-                        Eksport do Google Calendar
-                    </h3>
+        <div className="modal-overlay">
+            <div className="card modal-card">
+                <div className="modal-header">
+                    <h3 className="modal-title">Eksport do Google Calendar</h3>
                     <button
                         type="button"
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-600 font-bold text-xl"
+                        className="modal-close-btn"
+                        title="Zamknij"
                     >
                         ✕
                     </button>
                 </div>
 
-                <p className="text-sm text-gray-600 mb-4">
-                    Zamierzasz dodać <span className="font-semibold">{matches.length}</span> mecz(y) do swojego kalendarza:
+                <p className="modal-description">
+                    Zamierzasz dodać <strong className="text-accent">{matches.length}</strong> mecz(e) do swojego kalendarza:
                 </p>
 
-                <div className="max-h-48 overflow-y-auto mb-4 border border-gray-200 rounded p-2 text-xs divide-y divide-gray-100">
+                <div className="modal-matches-list scrollable-matches-list">
                     {matches.map((match, idx) => {
                         const host = match.host || (match as any).Host || 'Gospodarz';
                         const guest = match.guest || (match as any).Guest || 'Gość';
                         const rawDate = match.matchDate || (match as any).MatchDate;
 
                         return (
-                            <div key={idx} className="py-2 flex justify-between items-center gap-2">
-                                <span className="font-medium text-gray-800">
-                                    {host} <span className="text-gray-400 font-normal">vs</span> {guest}
+                            <div key={idx} className="match-card-item unclickable modal-match-item">
+                                <span className="match-teams">
+                                    {host} <span className="text-muted">vs</span> {guest}
                                 </span>
-                                <span className="text-gray-500 whitespace-nowrap">
-                                    {rawDate ? new Date(rawDate).toLocaleString('pl-PL', {
-                                        day: '2-digit',
-                                        month: '2-digit',
-                                        year: 'numeric',
-                                        hour: '2-digit',
-                                        minute: '2-digit'
-                                    }) : '-'}
+                                <span className="match-date">
+                                    {formatDate(rawDate)}
                                 </span>
                             </div>
                         );
                     })}
                 </div>
 
-                {error && (
-                    <div className="p-3 mb-4 text-xs bg-red-50 text-red-600 rounded border border-red-200">
-                        {error}
-                    </div>
-                )}
+                {error && <div className="card error-state modal-error">{error}</div>}
 
-                <div className="flex justify-end gap-3 mt-6">
+                <div className="modal-actions">
                     <button
                         type="button"
-                        className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm font-medium"
+                        className="tab-button modal-cancel-btn"
                         onClick={onClose}
                         disabled={isExporting}
                     >
@@ -132,7 +132,7 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
                     </button>
                     <button
                         type="button"
-                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm font-medium disabled:opacity-50 transition"
+                        className="submit-btn modal-submit-btn"
                         onClick={handleConfirm}
                         disabled={isExporting}
                     >
