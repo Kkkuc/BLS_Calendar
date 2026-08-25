@@ -20,6 +20,7 @@ builder.Services.AddCors(options =>
     });
 });
 
+
 builder.Services.AddControllers();
 
 // Rejestracja IHttpClientFactory dla LigspaceScraper
@@ -42,7 +43,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseAuthorization();
 app.MapControllers();
-
+app.UseCors("AllowFrontend");
 app.Run();
 
 /*
