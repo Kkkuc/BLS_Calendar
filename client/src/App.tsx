@@ -112,7 +112,7 @@ export default function App() {
             <div className="main-content">
                 <header className="header">
                     <img
-                        src="../public/front_logo_BLS.jpg"
+                        src="/front_logo_BLS.jpg"
                         alt="Białostocka Liga Sportu"
                         className="bls-logo"
                     />

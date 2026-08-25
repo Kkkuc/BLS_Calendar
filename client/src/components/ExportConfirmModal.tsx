@@ -60,6 +60,7 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
 
     const loginAndExport = useGoogleLogin({
         scope: 'https://www.googleapis.com/auth/calendar.events',
+        include_granted_scopes: false,
         onSuccess: async (tokenResponse) => {
             await sendMatchesToBackend(tokenResponse.access_token);
         },

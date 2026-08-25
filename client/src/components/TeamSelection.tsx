@@ -16,7 +16,7 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
     const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
     // Domyślne logo z folderu public
-    const defaultLogo = "../public/default-logo.png";
+    const defaultLogo = "/default-logo.png";
 
     useEffect(() => {
         async function loadTeams() {
