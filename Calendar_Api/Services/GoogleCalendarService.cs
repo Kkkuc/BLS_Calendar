@@ -62,21 +62,25 @@ public class GoogleCalendarService : IGoogleCalendarService
             ApplicationName = ApplicationName,
         });
     
-        // Konwersja czasu startowego z czasu polskiego na UTC
-        var localStartDate = DateTime.SpecifyKind(startDate, DateTimeKind.Unspecified);
-        var startUtc = TimeZoneInfo.ConvertTimeToUtc(localStartDate, tz);
+        // 1. Traktujemy sparsowaną datę jako "czysty" czas ściankowy (bez strefy)
+        var cleanStart = DateTime.SpecifyKind(startDate, DateTimeKind.Unspecified);
+        var cleanEnd = DateTime.SpecifyKind(endDate ?? startDate.AddHours(2), DateTimeKind.Unspecified);
 
-        // Konwersja czasu końcowego (jeśli brak, dodajemy 2 godziny do czasu polskiego i dopiero konwertujemy na UTC)
-        var targetEndDate = endDate ?? startDate.AddHours(2);
-        var localEndDate = DateTime.SpecifyKind(targetEndDate, DateTimeKind.Unspecified);
-        var endUtc = TimeZoneInfo.ConvertTimeToUtc(localEndDate, tz);
-    
+        // 2. Pobieramy dokładny offset (przesunięca) dla polskiej strefy w tym konkretnym dniu (np. +02:00 latem)
+        var startOffset = tz.GetUtcOffset(cleanStart);
+        var endOffset = tz.GetUtcOffset(cleanEnd);
+
+        // 3. Tworzymy DateTimeOffset jawnie ze wskazaniem polskiego czasu i offsetu
+        var startDto = new DateTimeOffset(cleanStart, startOffset);
+        var endDto = new DateTimeOffset(cleanEnd, endOffset);
+
         var newEvent = new Event
         {
             Summary = title,
             Description = description,
-            Start = new EventDateTime { DateTimeDateTimeOffset = new DateTimeOffset(startUtc) },
-            End = new EventDateTime { DateTimeDateTimeOffset = new DateTimeOffset(endUtc) }
+            // Przekazujemy gotowy DateTimeOffset – Google sam poprawnie zmapuje go na dowolną strefę użytkownika
+            Start = new EventDateTime { DateTimeDateTimeOffset = startDto },
+            End = new EventDateTime { DateTimeDateTimeOffset = endDto }
         };
 
         try
