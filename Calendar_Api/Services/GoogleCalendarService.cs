@@ -59,7 +59,6 @@ public class GoogleCalendarService : IGoogleCalendarService
         DateTime? endDate = null)
     {
         endDate ??= startDate.AddHours(2);
-
         var credential = GoogleCredential.FromAccessToken(accessToken);
 
         using var service = new CalendarService(new BaseClientService.Initializer
@@ -67,54 +66,31 @@ public class GoogleCalendarService : IGoogleCalendarService
             HttpClientInitializer = credential,
             ApplicationName = ApplicationName,
         });
-
-        var warsawTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw");
-
-        var startLocal = DateTime.SpecifyKind(
-            startDate,
-            DateTimeKind.Unspecified);
-
-        var endLocal = DateTime.SpecifyKind(
-            endDate.Value,
-            DateTimeKind.Unspecified);
-
-        var startOffset = warsawTimeZone.GetUtcOffset(startLocal);
-        var endOffset = warsawTimeZone.GetUtcOffset(endLocal);
-
-        var start = new DateTimeOffset(startLocal, startOffset);
-        var end = new DateTimeOffset(endLocal, endOffset);
+        
+        var warsawZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw");
+        var startOffset = new DateTimeOffset(
+            DateTime.SpecifyKind(startDate, DateTimeKind.Unspecified),
+            warsawZone.GetUtcOffset(startDate));
+        var endOffset = new DateTimeOffset(
+            DateTime.SpecifyKind(endDate.Value, DateTimeKind.Unspecified),
+            warsawZone.GetUtcOffset(endDate.Value));
 
         var newEvent = new Event
         {
             Summary = title,
             Description = description,
-
-            Start = new EventDateTime
-            {
-                DateTime = start.DateTime,
-                TimeZone = "Europe/Warsaw"
-            },
-
-            End = new EventDateTime
-            {
-                DateTime = end.DateTime,
-                TimeZone = "Europe/Warsaw"
-            }
+            Start = new EventDateTime { DateTimeDateTimeOffset = startOffset, TimeZone = "Europe/Warsaw" },
+            End = new EventDateTime { DateTimeDateTimeOffset = endOffset, TimeZone = "Europe/Warsaw" }
         };
 
         try
         {
-            await service.Events
-                .Insert(newEvent, "primary")
-                .ExecuteAsync();
-
+            await service.Events.Insert(newEvent, "primary").ExecuteAsync();
             return true;
         }
         catch (GoogleApiException ex)
         {
-            Console.WriteLine(
-                $"[Google Calendar Error]: {ex.HttpStatusCode} - {ex.Message}");
-
+            Console.WriteLine($"[Google Calendar Error]: {ex.HttpStatusCode} - {ex.Message}");
             throw;
         }
     }
