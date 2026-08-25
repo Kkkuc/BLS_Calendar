@@ -119,6 +119,7 @@ export default function App() {
                 <ExportSummaryModal
                     isOpen={exportStep === 'summary'}
                     summary={summaryData}
+                    onClose={() => setExportStep('closed')}
                     onRetry={() => setExportStep('confirm')}
                     onResetTeamSelection={handleResetAll}
                 />

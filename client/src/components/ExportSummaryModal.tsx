@@ -4,6 +4,7 @@ import type { ExportSummaryData } from './ExportConfirmModal';
 interface ExportSummaryModalProps {
     isOpen: boolean;
     summary: ExportSummaryData | null;
+    onClose: () => void;
     onRetry: () => void;
     onResetTeamSelection: () => void;
 }
@@ -11,6 +12,7 @@ interface ExportSummaryModalProps {
 export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({
                                                                           isOpen,
                                                                           summary,
+                                                                          onClose,
                                                                           onRetry,
                                                                           onResetTeamSelection,
                                                                       }) => {
@@ -19,6 +21,18 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({
     return (
         <div className="modal-overlay">
             <div className="card modal-card text-center">
+                <div className="modal-header">
+                    <h3 className="modal-title">Eksport do Google Calendar</h3>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        className="modal-close-btn"
+                        title="Zamknij"
+                    >
+                        ✕
+                    </button>
+                </div>
+                
                 <div className="summary-icon">✅</div>
                 <h3 className="modal-title summary-title">Eksport zakończony</h3>
 
@@ -49,7 +63,7 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({
                         className="tab-button modal-retry-btn"
                         onClick={onRetry}
                     >
-                        🔄 Wyślij ponowne żądanie
+                        🔄 Dodaj mecz ponownie
                     </button>
                     <button
                         type="button"
