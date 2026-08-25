@@ -53,21 +53,24 @@ public class GoogleCalendarService : IGoogleCalendarService
         string? description,
         DateTime? endDate = null)
     {
-        endDate ??= startDate.AddHours(2);
-        var credential = GoogleCredential.FromAccessToken(accessToken);
         var tz = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw");
+        var credential = GoogleCredential.FromAccessToken(accessToken);
 
         using var service = new CalendarService(new BaseClientService.Initializer
         {
             HttpClientInitializer = credential,
             ApplicationName = ApplicationName,
         });
-        
+    
+        // Konwersja czasu startowego z czasu polskiego na UTC
         var localStartDate = DateTime.SpecifyKind(startDate, DateTimeKind.Unspecified);
         var startUtc = TimeZoneInfo.ConvertTimeToUtc(localStartDate, tz);
 
-        var endUtc = startUtc.AddHours(2);
-        
+        // Konwersja czasu końcowego (jeśli brak, dodajemy 2 godziny do czasu polskiego i dopiero konwertujemy na UTC)
+        var targetEndDate = endDate ?? startDate.AddHours(2);
+        var localEndDate = DateTime.SpecifyKind(targetEndDate, DateTimeKind.Unspecified);
+        var endUtc = TimeZoneInfo.ConvertTimeToUtc(localEndDate, tz);
+    
         var newEvent = new Event
         {
             Summary = title,
