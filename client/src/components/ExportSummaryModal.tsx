@@ -37,7 +37,7 @@ export const ExportSummaryModal: React.FC<ExportSummaryModalProps> = ({
                 <h3 className="modal-title summary-title">Eksport zakończony</h3>
 
                 <p className="modal-description">
-                    Dodano meczów: <strong className="summary-added-count">{summary.added}</strong>
+                    Dodano wybrane mecze!
                 </p>
 
                 <div className="modal-matches-list scrollable-matches-list">
