@@ -8,4 +8,7 @@ public record MatchDto(
     int Round,
     string Status,
     DateTime MatchDate,
-    string Court);
+    string Court)
+{
+    public bool IsUnplayed => string.IsNullOrWhiteSpace(Status) && HostSetsResult == 0 && GuestSetsResult == 0;
+}

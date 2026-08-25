@@ -1,5 +1,4 @@
 using Calendar_Api.DTOs;
-using Calendar_Api.Models;
 using Google;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Calendar.v3;
@@ -18,26 +17,18 @@ public class GoogleCalendarService : IGoogleCalendarService
         var addedCount = 0;
         var details = new List<MatchResultDto>();
 
-        foreach (var dto in matches)
+        foreach (var match in matches)
         {
-            var matchData = new MatchData(
-                dto.Host, dto.Guest, dto.HostSetsResult, 
-                dto.GuestSetsResult, dto.Round, dto.Status, 
-                dto.MatchDate, dto.Court
-            );
-
-            var matchLabel = $"{matchData.Host} vs {matchData.Guest}";
+            var matchLabel = $"{match.Host} vs {match.Guest}";
             var title = $"BLS Match: {matchLabel}";
             
-            var description = "Brak informacji o boisku";
-            if (!string.IsNullOrWhiteSpace(matchData.Court))
-            {
-                description = $"Boisko: {matchData.Court}";
-            }
+            var description = string.IsNullOrWhiteSpace(match.Court)
+                ? "Brak informacji o boisku"
+                : $"Boisko: {match.Court}";
 
             var added = await AddEventAsync(
                 accessToken: accessToken,
-                startDate: matchData.MatchDate,
+                startDate: match.MatchDate,
                 title: title,
                 description: description
             );
@@ -51,11 +42,11 @@ public class GoogleCalendarService : IGoogleCalendarService
             details.Add(new MatchResultDto(matchLabel, "ADDED", "Pomyślnie dodano do kalendarza."));
         }
 
-        return new ExportResponseDto(new ExportSummaryDto(addedCount), details);
+        return new ExportResponseDto(addedCount, details);
     }
 
     [Obsolete("Obsolete")]
-    public async Task<bool> AddEventAsync(
+    private static async Task<bool> AddEventAsync(
         string accessToken,
         DateTime startDate,
         string title,

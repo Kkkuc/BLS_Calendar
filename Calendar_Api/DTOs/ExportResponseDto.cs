@@ -1,3 +1,3 @@
 namespace Calendar_Api.DTOs;
 
-public record ExportResponseDto(ExportSummaryDto Summary, List<MatchResultDto> Details);
+public record ExportResponseDto(int AddedCount, List<MatchResultDto> Details);

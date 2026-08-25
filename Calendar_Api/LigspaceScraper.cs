@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
-using Calendar_Api.Models;
+using Calendar_Api.DTOs;
 using HtmlAgilityPack;
 
 namespace Calendar_Api;
@@ -9,8 +9,20 @@ namespace Calendar_Api;
 public partial class LigspaceScraper(HttpClient httpClient)
 {
     private const string BaseUrl = "https://blssiatkowka.ligspace.pl/index.php";
+    private const string Domain = "https://blssiatkowka.ligspace.pl";
 
-    public async Task<List<MatchData>> GetTeamMatchesAsync(int teamId)
+    private static readonly string[] InvalidNames =
+    [
+        "Błąd",
+        "Najnowsze wiadomości",
+        "Wiadomości",
+        "Szanowni użytkownicy",
+        "Strona główna"
+    ];
+
+    private static readonly string[] InvalidImageKeywords = ["logo_BLS", "banner", "blank.gif", "blank"];
+
+    public async Task<List<MatchDto>> GetTeamMatchesAsync(int teamId)
     {
         var url = $"{BaseUrl}?mod=Teams&ac=TeamSchedule&t_id={teamId}";
         var html = await httpClient.GetStringAsync(url);
@@ -19,24 +31,18 @@ public partial class LigspaceScraper(HttpClient httpClient)
         doc.LoadHtml(html);
 
         var rows = doc.DocumentNode.SelectNodes("//tr[count(td)=6]");
+        var matches = new List<MatchDto>();
 
-        var matches = new List<MatchData>();
-
-        if (rows == null)
-        {
-            return matches;
-        }
+        if (rows == null) return matches;
 
         foreach (var row in rows)
         {
             var cells = row.SelectNodes("./td");
-            if (cells != null && cells.Count != 6) continue;
+            if (cells == null || cells.Count != 6) continue;
 
             try
             {
-                var pairs = CleanText(cells![0].InnerText);
-                var (host, guest) = SplitPair(pairs);
-
+                var (host, guest) = SplitPair(CleanText(cells[0].InnerText));
                 var status = CleanText(cells[1].InnerText);
                 var (result, dateStr) = ParseResultAndDate(cells[2].InnerHtml);
 
@@ -54,7 +60,7 @@ public partial class LigspaceScraper(HttpClient httpClient)
 
                 if (!DateTime.TryParse(dateStr, out var parsedDate)) continue;
 
-                matches.Add(new MatchData(host, guest, hostScore, guestScore, round, status, parsedDate, court));
+                matches.Add(new MatchDto(host, guest, hostScore, guestScore, round, status, parsedDate, court));
             }
             catch
             {
@@ -65,7 +71,7 @@ public partial class LigspaceScraper(HttpClient httpClient)
         return matches;
     }
 
-    public async Task<List<Team>> FetchAllTeamsAsync(int maxId = 60)
+    public async Task<List<TeamDto>> FetchAllTeamsAsync(int maxId = 60)
     {
         var tasks = Enumerable.Range(1, maxId).Select(async id =>
         {
@@ -77,58 +83,36 @@ public partial class LigspaceScraper(HttpClient httpClient)
                 doc.LoadHtml(html);
 
                 var nameNode = doc.DocumentNode.SelectSingleNode("//div[@id='main']//h2");
+                if (nameNode == null) return null;
 
-                var cleanName = HttpUtility.HtmlDecode(nameNode!.InnerText).Trim();
-
-                var invalidNames = new[]
-                {
-                    "Błąd",
-                    "Najnowsze wiadomości",
-                    "Wiadomości",
-                    "Szanowni użytkownicy",
-                    "Strona główna"
-                };
+                var cleanName = HttpUtility.HtmlDecode(nameNode.InnerText).Trim();
 
                 if (string.IsNullOrWhiteSpace(cleanName) ||
-                    invalidNames.Any(invalid => cleanName.Contains(invalid, StringComparison.OrdinalIgnoreCase)))
+                    InvalidNames.Any(invalid => cleanName.Contains(invalid, StringComparison.OrdinalIgnoreCase)))
                 {
                     return null;
                 }
 
-                // Pobieramy obrazek logo znajdujący się w sekcji głównej profilu
-                var imgNode =
-                    doc.DocumentNode.SelectSingleNode(
-                        "//div[@id='main']//img[contains(@src, 'user_files') or contains(@src, 'teams') or contains(@src, 'upload')]") ??
-                    // Alternatywne zapytanie, jeśli logo jest jedynym obrazkiem w profilu pod h2:
-                    doc.DocumentNode.SelectSingleNode("//div[@id='main']//img");
+                var imgNode = doc.DocumentNode.SelectSingleNode(
+                    "//div[@id='main']//img[contains(@src, 'user_files') or contains(@src, 'teams') or contains(@src, 'upload')]"
+                ) ?? doc.DocumentNode.SelectSingleNode("//div[@id='main']//img");
 
                 string? logoUrl = null;
-                if (imgNode == null)
+                if (imgNode != null)
                 {
-                    return new Team(id, cleanName, profileUrl, logoUrl);
+                    var src = imgNode.GetAttributeValue("src", string.Empty);
+                    if (!string.IsNullOrWhiteSpace(src) &&
+                        !InvalidImageKeywords.Any(keyword => src.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        logoUrl = src.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+                            ? src
+                            : src.StartsWith('/')
+                                ? $"{Domain}{src}"
+                                : $"{Domain}/{src}";
+                    }
                 }
 
-                var src = imgNode.GetAttributeValue("src", string.Empty);
-                var invalidImageKeywords = new[] { "logo_BLS", "banner", "blank.gif", "blank" };
-
-                if (string.IsNullOrWhiteSpace(src) || 
-                    invalidImageKeywords.Any(keyword => src.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
-                {
-                    return new Team(id, cleanName, profileUrl, null);
-                }
-
-                // Budujemy pełny URL jeśli ścieżka jest względna
-                if (src.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-                {
-                    logoUrl = src;
-                }
-                else
-                {
-                    const string domain = "https://blssiatkowka.ligspace.pl";
-                    logoUrl = src.StartsWith($"/") ? $"{domain}{src}" : $"{domain}/{src}";
-                }
-
-                return new Team(id, cleanName, profileUrl, logoUrl);
+                return new TeamDto(id, cleanName, profileUrl, logoUrl);
             }
             catch
             {
@@ -158,10 +142,12 @@ public partial class LigspaceScraper(HttpClient httpClient)
         var clean = HtmlTagRegex().Replace(decoded, "").Trim();
         var parts = clean.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
-        if (parts.Length == 1) return (null, parts[0].Trim());
-        if (parts.Length >= 2) return (parts[0].Trim(), parts[1].Trim());
-
-        return (null, null);
+        return parts.Length switch
+        {
+            1 => (null, parts[0].Trim()),
+            >= 2 => (parts[0].Trim(), parts[1].Trim()),
+            _ => (null, null)
+        };
     }
 
     private static string LimitToWords(string input, int count) =>
