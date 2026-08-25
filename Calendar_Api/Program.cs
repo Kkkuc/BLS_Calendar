@@ -42,3 +42,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+/*
+"wystarczy, że zrobisz crona, który będzie pingować backend
+
+
+
+ja tak zrobiłem na potrzeby kursu, bo chyba po 10-15 minutach usypia backend"
+*/
