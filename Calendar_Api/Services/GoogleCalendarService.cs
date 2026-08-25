@@ -53,7 +53,7 @@ public class GoogleCalendarService : IGoogleCalendarService
         string? description,
         DateTime? endDate = null)
     {
-        var tz = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw");
+        endDate ??= startDate.AddHours(2);
         var credential = GoogleCredential.FromAccessToken(accessToken);
 
         using var service = new CalendarService(new BaseClientService.Initializer
@@ -61,26 +61,13 @@ public class GoogleCalendarService : IGoogleCalendarService
             HttpClientInitializer = credential,
             ApplicationName = ApplicationName,
         });
-    
-        // 1. Traktujemy sparsowaną datę jako "czysty" czas ściankowy (bez strefy)
-        var cleanStart = DateTime.SpecifyKind(startDate, DateTimeKind.Unspecified);
-        var cleanEnd = DateTime.SpecifyKind(endDate ?? startDate.AddHours(2), DateTimeKind.Unspecified);
-
-        // 2. Pobieramy dokładny offset (przesunięca) dla polskiej strefy w tym konkretnym dniu (np. +02:00 latem)
-        var startOffset = tz.GetUtcOffset(cleanStart);
-        var endOffset = tz.GetUtcOffset(cleanEnd);
-
-        // 3. Tworzymy DateTimeOffset jawnie ze wskazaniem polskiego czasu i offsetu
-        var startDto = new DateTimeOffset(cleanStart, startOffset);
-        var endDto = new DateTimeOffset(cleanEnd, endOffset);
-
+        
         var newEvent = new Event
         {
             Summary = title,
             Description = description,
-            // Przekazujemy gotowy DateTimeOffset – Google sam poprawnie zmapuje go na dowolną strefę użytkownika
-            Start = new EventDateTime { DateTimeDateTimeOffset = startDto },
-            End = new EventDateTime { DateTimeDateTimeOffset = endDto }
+            Start = new EventDateTime { DateTime = startDate, TimeZone = "Europe/Warsaw" },
+            End = new EventDateTime { DateTime = endDate, TimeZone = "Europe/Warsaw" }
         };
 
         try
