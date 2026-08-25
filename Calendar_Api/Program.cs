@@ -20,7 +20,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-
+builder.Services.AddMemoryCache();
 builder.Services.AddControllers();
 
 // Rejestracja IHttpClientFactory dla LigspaceScraper
