@@ -3,6 +3,21 @@ using LigspaceScraper = Calendar_Api.LigspaceScraper;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Konfiguracja CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy.WithOrigins(
+                "http://localhost:5173", // Do testów lokalnych
+                "https://*.pages.dev"     // Wszystkie domeny Cloudflare Pages
+            )
+            .SetIsOriginAllowedToAllowWildcardSubdomains()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddControllers();
 
 // Rejestracja IHttpClientFactory dla LigspaceScraper
