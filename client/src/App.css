@@ -803,6 +803,11 @@ body {
   font-size: 0.8rem;
 }
 
+body.modal-open {
+  overflow: hidden;
+  touch-action: none;
+}
+
 /* Przyciski modala */
 .modal-actions {
   display: flex;

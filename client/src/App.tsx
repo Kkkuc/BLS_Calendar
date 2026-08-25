@@ -21,7 +21,19 @@ export default function App() {
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
-    }, [theme]);
+
+        // 2. Blokowanie / odblokowywanie scrollowania tła dla modala
+        if (exportStep !== 'closed') {
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.classList.remove('modal-open');
+        }
+
+        // Cleanup przy odmontowaniu komponentu
+        return () => {
+            document.body.classList.remove('modal-open');
+        };
+    }, [theme, exportStep]);
 
     const toggleTheme = () => {
         setTheme((prevTheme) => (prevTheme === 'dark' ? 'light' : 'dark'));
