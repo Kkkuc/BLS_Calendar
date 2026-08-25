@@ -21,7 +21,7 @@ public class GoogleCalendarService : IGoogleCalendarService
         {
             var matchLabel = $"{match.Host} vs {match.Guest}";
             var title = $"BLS Match: {matchLabel}";
-            
+
             var description = string.IsNullOrWhiteSpace(match.Court)
                 ? "Brak informacji o boisku"
                 : $"Boisko: {match.Court}";
@@ -37,7 +37,7 @@ public class GoogleCalendarService : IGoogleCalendarService
             {
                 continue;
             }
-            
+
             addedCount++;
             details.Add(new MatchResultDto(matchLabel, "ADDED", "Pomyślnie dodano do kalendarza."));
         }
@@ -61,18 +61,34 @@ public class GoogleCalendarService : IGoogleCalendarService
             HttpClientInitializer = credential,
             ApplicationName = ApplicationName,
         });
-        
+
         var newEvent = new Event
         {
             Summary = title,
             Description = description,
-            Start = new EventDateTime { DateTime = startDate, TimeZone = "Europe/Warsaw" },
-            End = new EventDateTime { DateTime = endDate, TimeZone = "Europe/Warsaw" }
+            Start = new EventDateTime
+            {
+                DateTime = DateTime.SpecifyKind(
+                    startDate,
+                    DateTimeKind.Unspecified)
+            },
+            End = new EventDateTime
+            {
+                DateTime = DateTime.SpecifyKind(
+                    endDate.Value,
+                    DateTimeKind.Unspecified)
+            }
         };
 
         try
         {
+            Console.WriteLine(
+                $"START: {newEvent.Start.DateTime:o}, TZ: {newEvent.Start.TimeZone}");
+
+            Console.WriteLine(
+                $"END: {newEvent.End.DateTime:o}, TZ: {newEvent.End.TimeZone}");
             await service.Events.Insert(newEvent, "primary").ExecuteAsync();
+            
             return true;
         }
         catch (GoogleApiException ex)
