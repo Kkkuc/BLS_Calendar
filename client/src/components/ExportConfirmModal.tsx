@@ -12,6 +12,7 @@ interface ExportConfirmModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: (data: ExportSummaryData) => void;
+    
 }
 
 export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
@@ -22,6 +23,12 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
                                                                       }) => {
     const [isExporting, setIsExporting] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+
+    const handleClose = () => {
+        setIsExporting(false);
+        setError(null);
+        onClose();
+    };
 
     const sendMatchesToBackend = async (accessToken: string) => {
         try {
@@ -45,21 +52,26 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
                 details: data.details ?? [],
             });
         } catch (err: any) {
-            setError(err.message || 'Wystąpił błąd.');
+            setError(err.message || 'Wystąpił błąd podczas wysyłania meczów.');
         } finally {
             setIsExporting(false);
         }
     };
 
     const loginAndExport = useGoogleLogin({
-        scope: 'https://www.googleapis.com/auth/calendar',
+        scope: 'https://www.googleapis.com/auth/calendar.events',
         onSuccess: async (tokenResponse) => {
             await sendMatchesToBackend(tokenResponse.access_token);
         },
-        onError: () => {
-            setError('Nie udało się autoryzować konta Google.');
+        onError: (errorResponse) => {
+            console.error('Google Auth Error:', errorResponse);
+            setError('Autoryzacja Google nie powiodła się lub została anulowana.');
             setIsExporting(false);
         },
+        onNonOAuthError: () => {
+            setError('Zamknięto okno logowania Google.');
+            setIsExporting(false);
+        }
     });
 
     if (!isOpen) return null;
@@ -67,7 +79,12 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
     const handleConfirm = () => {
         setIsExporting(true);
         setError(null);
-        loginAndExport();
+        try {
+            loginAndExport();
+        } catch (e) {
+            setError('Nie udało się otworzyć okna logowania.');
+            setIsExporting(false);
+        }
     };
 
     const formatDate = (rawDate: string | Date | undefined) => {
@@ -88,7 +105,7 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
                     <h3 className="modal-title">Eksport do Google Calendar</h3>
                     <button
                         type="button"
-                        onClick={onClose}
+                        onClick={handleClose}
                         className="modal-close-btn"
                         title="Zamknij"
                     >
@@ -119,14 +136,17 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
                     })}
                 </div>
 
-                {error && <div className="card error-state modal-error">{error}</div>}
+                {error && (
+                    <div className="card error-state modal-error">
+                        {error}
+                    </div>
+                )}
 
                 <div className="modal-actions">
                     <button
                         type="button"
                         className="tab-button modal-cancel-btn"
-                        onClick={onClose}
-                        disabled={isExporting}
+                        onClick={handleClose}
                     >
                         Anuluj
                     </button>

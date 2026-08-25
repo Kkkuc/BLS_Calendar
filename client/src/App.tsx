@@ -8,9 +8,13 @@ import {ExportSummaryModal} from './components/ExportSummaryModal';
 import './App.css';
 
 export default function App() {
-    const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
-    const [matchesToExport, setMatchesToExport] = useState<MatchDto[]>([]);
+    // Inicjalizacja wybranej drużyny z sessionStorage
+    const [selectedTeam, setSelectedTeam] = useState<Team | null>(() => {
+        const savedTeam = sessionStorage.getItem('selectedTeam');
+        return savedTeam ? JSON.parse(savedTeam) : null;
+    });
 
+    const [matchesToExport, setMatchesToExport] = useState<MatchDto[]>([]);
     const [exportStep, setExportStep] = useState<'closed' | 'confirm' | 'summary'>('closed');
     const [summaryData, setSummaryData] = useState<ExportSummaryData | null>(null);
 
@@ -18,18 +22,26 @@ export default function App() {
         return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
     });
 
+    // Zapisywanie wybranej drużyny do sessionStorage przy każdej zmianie
+    const handleSelectTeam = (team: Team | null) => {
+        setSelectedTeam(team);
+        if (team) {
+            sessionStorage.setItem('selectedTeam', JSON.stringify(team));
+        } else {
+            sessionStorage.removeItem('selectedTeam');
+        }
+    };
+
     useEffect(() => {
         document.documentElement.setAttribute('data-theme', theme);
         localStorage.setItem('theme', theme);
 
-        // 2. Blokowanie / odblokowywanie scrollowania tła dla modala
         if (exportStep !== 'closed') {
             document.body.classList.add('modal-open');
         } else {
             document.body.classList.remove('modal-open');
         }
 
-        // Cleanup przy odmontowaniu komponentu
         return () => {
             document.body.classList.remove('modal-open');
         };
@@ -53,7 +65,7 @@ export default function App() {
         setExportStep('closed');
         setSummaryData(null);
         setMatchesToExport([]);
-        setSelectedTeam(null);
+        handleSelectTeam(null);
     };
 
     return (
@@ -61,10 +73,9 @@ export default function App() {
             <nav className="navbar">
                 <div className="navbar-container">
                     <div className="navbar-brand">
-                        {/* Główny przycisk powrotu do wyboru drużyny (widoczny gdy wybrano zespół) */}
                         {selectedTeam ? (
                             <button
-                                onClick={() => setSelectedTeam(null)}
+                                onClick={() => handleSelectTeam(null)}
                                 className="tab-button active back-navbar-btn"
                             >
                                 ← Wybór drużyny
@@ -73,7 +84,6 @@ export default function App() {
                             <span className="navbar-title">Wybór drużyny</span>
                         )}
 
-                        {/* Poboczny link zewnętrzny do ligi */}
                         <a
                             href="https://blssiatkowka.ligspace.pl/"
                             target="_blank"
@@ -92,14 +102,13 @@ export default function App() {
                                 checked={theme === 'light'}
                             />
                             <span className="slider">
-                    <span className="icon">{theme === 'dark' ? '🌙' : '☀️'}</span>
-                </span>
+                                <span className="icon">{theme === 'dark' ? '🌙' : '☀️'}</span>
+                            </span>
                         </label>
                     </div>
                 </div>
             </nav>
 
-            {/* Główna treść */}
             <div className="main-content">
                 <header className="header">
                     <img
@@ -111,11 +120,11 @@ export default function App() {
 
                 <main>
                     {!selectedTeam ? (
-                        <TeamSelection onSelectTeam={(team) => setSelectedTeam(team)}/>
+                        <TeamSelection onSelectTeam={handleSelectTeam}/>
                     ) : (
                         <MatchList
                             team={selectedTeam}
-                            onBack={() => setSelectedTeam(null)}
+                            onBack={() => handleSelectTeam(null)}
                             onExportSelected={handleOpenExportModal}
                         />
                     )}
@@ -139,4 +148,3 @@ export default function App() {
         </div>
     );
 }
-            
