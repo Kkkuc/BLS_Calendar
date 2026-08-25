@@ -55,6 +55,7 @@ public class GoogleCalendarService : IGoogleCalendarService
     {
         endDate ??= startDate.AddHours(2);
         var credential = GoogleCredential.FromAccessToken(accessToken);
+        var tz = TimeZoneInfo.FindSystemTimeZoneById("Europe/Warsaw");
 
         using var service = new CalendarService(new BaseClientService.Initializer
         {
@@ -62,12 +63,17 @@ public class GoogleCalendarService : IGoogleCalendarService
             ApplicationName = ApplicationName,
         });
         
+        var localStartDate = DateTime.SpecifyKind(startDate, DateTimeKind.Unspecified);
+        var startUtc = TimeZoneInfo.ConvertTimeToUtc(localStartDate, tz);
+
+        var endUtc = startUtc.AddHours(2);
+        
         var newEvent = new Event
         {
             Summary = title,
             Description = description,
-            Start = new EventDateTime { DateTime = startDate, TimeZone = "Europe/Warsaw" },
-            End = new EventDateTime { DateTime = endDate, TimeZone = "Europe/Warsaw" }
+            Start = new EventDateTime { DateTimeDateTimeOffset = new DateTimeOffset(startUtc) },
+            End = new EventDateTime { DateTimeDateTimeOffset = new DateTimeOffset(endUtc) }
         };
 
         try

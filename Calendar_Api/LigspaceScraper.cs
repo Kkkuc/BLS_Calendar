@@ -58,7 +58,7 @@ public partial class LigspaceScraper(HttpClient httpClient)
                 int.TryParse(CleanText(cells[3].InnerText), out var round);
                 var court = LimitToWords(CleanText(cells[4].InnerText), 2);
 
-                if (!DateTime.TryParse(dateStr, out var parsedDate)) continue;
+                if (!DateTime.TryParse(dateStr, null, System.Globalization.DateTimeStyles.AssumeLocal, out var parsedDate)) continue;
 
                 matches.Add(new MatchDto(host, guest, hostScore, guestScore, round, status, parsedDate, court));
             }
