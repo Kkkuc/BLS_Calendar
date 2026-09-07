@@ -97,6 +97,17 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
         }
     };
 
+    // Unikalne emotki dla każdego rodzaju rozgrywek
+    const getCompetitionEmoji = (type: CompetitionType) => {
+        switch (type) {
+            case 'league1': return '🥇';
+            case 'league2': return '🥈';
+            case 'cup': return '🏆';
+            case 'cupElim': return '🎯';
+            case 'superCup': return '⭐';
+        }
+    };
+
     const handleTeamClick = (team: Team) => {
         setSelectedTeam(team);
     };
@@ -123,39 +134,42 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
     return (
         <div className="card flashscore-card" style={{ position: 'relative' }}>
 
-            {/* Flashscore Style Header Bar */}
-            <div
-                onClick={() => setIsMenuOpen(true)}
-                style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '12px 16px',
-                    background: '#1e1e1e',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    marginBottom: '15px',
-                    border: '1px solid #333',
-                    transition: 'border-color 0.2s'
-                }}
-            >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <span style={{ fontSize: '16px' }}>🏐</span>
-                    <span style={{ fontWeight: 600, fontSize: '15px', color: '#fff' }}>
-                        {getCompetitionName(competition)}
-                    </span>
-                </div>
-                <span style={{ fontSize: '12px', color: '#aaa', transform: isMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
-            </div>
+            <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', alignItems: 'center' }}>
 
-            {/* Wyszukiwarka */}
-            <div className="search-box" style={{ marginBottom: '15px' }}>
-                <input
-                    type="text"
-                    placeholder="Szukaj drużyny..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                {/* Kompaktowy przycisk (Dedykowana emotka + Strzałka) */}
+                <button
+                    type="button"
+                    onClick={() => setIsMenuOpen(true)}
+                    title={getCompetitionName(competition)}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '6px',
+                        padding: '10px 14px',
+                        background: '#1e1e1e',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        border: '1px solid #333',
+                        color: '#fff',
+                        whiteSpace: 'nowrap',
+                        height: '100%'
+                    }}
+                >
+                    <span style={{ fontSize: '16px' }}>{getCompetitionEmoji(competition)}</span>
+                    <span style={{ fontSize: '11px', color: '#aaa' }}>▼</span>
+                </button>
+
+                {/* Wyszukiwarka obok */}
+                <div className="search-box" style={{ flex: 1, margin: 0 }}>
+                    <input
+                        type="text"
+                        placeholder="Szukaj drużyny..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        style={{ width: '100%' }}
+                    />
+                </div>
             </div>
 
             {/* Lista drużyn */}
@@ -265,7 +279,10 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                                             border: active ? '1px solid #3f3f46' : '1px solid transparent'
                                         }}
                                     >
-                                        <span>{getCompetitionName(type)}</span>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <span style={{ fontSize: '18px' }}>{getCompetitionEmoji(type)}</span>
+                                            <span>{getCompetitionName(type)}</span>
+                                        </div>
                                         {active && <span>✓</span>}
                                     </div>
                                 );
