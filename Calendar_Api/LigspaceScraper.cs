@@ -80,27 +80,26 @@ public partial class LigspaceScraper(HttpClient httpClient)
         return matches;
     }
 
-    public async Task<List<TeamDto>> FetchAllTeamsAsync(int maxId = 60)
+    public async Task<List<TeamDto>> FetchAllTeamsAsync()
     {
-        var tasks = Enumerable.Range(1, maxId).Select(async id =>
+        var league1Url = $"{BaseUrl}?mod=Classifications&ac=Browse&season=82&league=162";
+        var league2Url = $"{BaseUrl}?mod=Classifications&ac=Browse&season=82&league=163";
+
+        var task1 = FetchTeamsFromLeagueAsync(1, league1Url);
+        var task2 = FetchTeamsFromLeagueAsync(2, league2Url);
+
+        await Task.WhenAll(task1, task2);
+
+        var allTeams = task1.Result.Concat(task2.Result).ToList();
+
+        // Fetch logos in parallel for all discovered teams
+        var logoTasks = allTeams.Select(async team =>
         {
-            var profileUrl = $"{BaseUrl}?mod=Teams&ac=TeamSchedule&t_id={id}";
             try
             {
-                var html = await httpClient.GetStringAsync(profileUrl);
+                var html = await httpClient.GetStringAsync(team.Url);
                 var doc = new HtmlDocument();
                 doc.LoadHtml(html);
-
-                var nameNode = doc.DocumentNode.SelectSingleNode("//div[@id='main']//h2");
-                if (nameNode == null) return null;
-
-                var cleanName = HttpUtility.HtmlDecode(nameNode.InnerText).Trim();
-
-                if (string.IsNullOrWhiteSpace(cleanName) ||
-                    InvalidNames.Any(invalid => cleanName.Contains(invalid, StringComparison.OrdinalIgnoreCase)))
-                {
-                    return null;
-                }
 
                 var imgNode = doc.DocumentNode.SelectSingleNode(
                     "//div[@id='main']//img[contains(@src, 'user_files') or contains(@src, 'teams') or contains(@src, 'upload')]"
@@ -121,16 +120,61 @@ public partial class LigspaceScraper(HttpClient httpClient)
                     }
                 }
 
-                return new TeamDto(id, cleanName, profileUrl, logoUrl);
+                return team with { LogoUrl = logoUrl };
             }
             catch
             {
-                return null;
+                return team;
             }
         });
 
-        var results = await Task.WhenAll(tasks);
-        return results.Where(t => t != null).OrderBy(t => t!.Name).ToList()!;
+        var results = await Task.WhenAll(logoTasks);
+        return results.OrderBy(t => t.Name).ToList();
+    }
+
+    private async Task<List<TeamDto>> FetchTeamsFromLeagueAsync(int leagueNum, string url)
+    {
+        try
+        {
+            var html = await httpClient.GetStringAsync(url);
+            var doc = new HtmlDocument();
+            doc.LoadHtml(html);
+
+            var teamLinks = doc.DocumentNode.SelectNodes("//a[contains(@href, 't_id=')]");
+            if (teamLinks == null) return [];
+
+            var leagueTeams = new List<TeamDto>();
+            var seenIds = new HashSet<int>();
+
+            foreach (var link in teamLinks)
+            {
+                var href = link.GetAttributeValue("href", string.Empty);
+                var match = TeamIdRegex().Match(href);
+                if (!match.Success) continue;
+
+                if (int.TryParse(match.Groups[1].Value, out var id))
+                {
+                    if (seenIds.Contains(id)) continue;
+                    seenIds.Add(id);
+
+                    var name = HttpUtility.HtmlDecode(link.InnerText).Trim();
+                    if (string.IsNullOrWhiteSpace(name) ||
+                        InvalidNames.Any(invalid => name.Contains(invalid, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        continue;
+                    }
+
+                    var profileUrl = $"{BaseUrl}?mod=Teams&ac=TeamSchedule&t_id={id}";
+                    leagueTeams.Add(new TeamDto(id, name, profileUrl, null, leagueNum));
+                }
+            }
+
+            return leagueTeams;
+        }
+        catch
+        {
+            return [];
+        }
     }
 
     private static string CleanText(string input) => WebUtility.HtmlDecode(input).Trim();
@@ -164,4 +208,7 @@ public partial class LigspaceScraper(HttpClient httpClient)
 
     [GeneratedRegex("<.*?>")]
     private static partial Regex HtmlTagRegex();
+
+    [GeneratedRegex(@"t_id=(\d+)", RegexOptions.IgnoreCase)]
+    private static partial Regex TeamIdRegex();
 }

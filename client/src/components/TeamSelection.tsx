@@ -12,11 +12,11 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    const [selectedLeague] = useState<number>(1);
+    // 1. Dodajemy stan wybranej ligi (domyślnie I Liga = 1)
+    const [selectedLeague, setSelectedLeague] = useState<number>(1);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
-    // Domyślne logo z folderu public
     const defaultLogo = "/default-logo.png";
 
     useEffect(() => {
@@ -32,7 +32,6 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
 
                 const data: Team[] = await response.json();
 
-                // Poprawione przefiltrowanie nieprawidłowych wpisów
                 const cleanTeams = data.filter((team) => {
                     const invalidNames = ['najnowsze wiadomości', 'błąd', 'szanowni użytkownicy'];
                     return !invalidNames.some((invalid) => team.name.toLowerCase().includes(invalid));
@@ -55,11 +54,10 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
         loadTeams();
     }, [selectedTeamId]);
 
+    // 2. Filtrowanie uwzględniające wybraną ligę (team.league zwracane z backendu) oraz wyszukiwarkę
     const filteredTeams = useMemo(() => {
         return teams.filter((team) => {
-            const matchesLeague = team.league
-                ? team.league.toString().includes(selectedLeague.toString())
-                : true;
+            const matchesLeague = team.league ? team.league === selectedLeague : true;
 
             const matchesSearch = team.name
                 .toLowerCase()
@@ -98,6 +96,27 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
 
     return (
         <div className="card flashscore-card">
+
+            {/* Przełącznik Lig (Tabs / Przyciski) */}
+            <div className="league-tabs" style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+                <button
+                    type="button"
+                    className={`submit-btn ${selectedLeague === 1 ? '' : 'secondary-btn'}`}
+                    style={{ flex: 1, opacity: selectedLeague === 1 ? 1 : 0.6 }}
+                    onClick={() => { setSelectedLeague(1); setSelectedTeam(null); }}
+                >
+                    I Liga
+                </button>
+                <button
+                    type="button"
+                    className={`submit-btn ${selectedLeague === 2 ? '' : 'secondary-btn'}`}
+                    style={{ flex: 1, opacity: selectedLeague === 2 ? 1 : 0.6 }}
+                    onClick={() => { setSelectedLeague(2); setSelectedTeam(null); }}
+                >
+                    II Liga
+                </button>
+            </div>
+
             {/* Wyszukiwarka */}
             <div className="search-box">
                 <input
@@ -125,7 +144,6 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                                         alt={team.name}
                                         className="team-logo"
                                         onError={(e) => {
-                                            // Fallback do domyślnego logo w razie błędu wczytywania URL
                                             (e.target as HTMLImageElement).src = defaultLogo;
                                         }}
                                     />
@@ -136,7 +154,7 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                         );
                     })
                 ) : (
-                    <div className="empty-state">Brak aktywnych drużyn do wyświetlenia.</div>
+                    <div className="empty-state">Brak drużyn w tej lidze dla podanej frazy.</div>
                 )}
             </div>
 
