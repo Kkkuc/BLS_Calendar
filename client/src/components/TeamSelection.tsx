@@ -7,13 +7,15 @@ interface TeamSelectionProps {
     selectedTeamId?: number | null;
 }
 
+type CompetitionType = 'league1' | 'league2' | 'cup' | 'cupElim' | 'superCup';
+
 export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSelectionProps) {
     const [teams, setTeams] = useState<Team[]>([]);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
 
-    // 1. Dodajemy stan wybranej ligi (domyślnie I Liga = 1)
-    const [selectedLeague, setSelectedLeague] = useState<number>(1);
+    const [competition, setCompetition] = useState<CompetitionType>('league1');
+    const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState<string>('');
     const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
 
@@ -54,18 +56,46 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
         loadTeams();
     }, [selectedTeamId]);
 
-    // 2. Filtrowanie uwzględniające wybraną ligę (team.league zwracane z backendu) oraz wyszukiwarkę
+    // Filtrowanie na podstawie wybranej kategorii i flag obiektu Team
     const filteredTeams = useMemo(() => {
         return teams.filter((team) => {
-            const matchesLeague = team.league ? team.league === selectedLeague : true;
+            let matchesCompetition = false;
+
+            switch (competition) {
+                case 'league1':
+                    matchesCompetition = team.leagueNum === 1;
+                    break;
+                case 'league2':
+                    matchesCompetition = team.leagueNum === 2;
+                    break;
+                case 'cup':
+                    matchesCompetition = Boolean(team.isInCup);
+                    break;
+                case 'cupElim':
+                    matchesCompetition = Boolean(team.isInCupElim);
+                    break;
+                case 'superCup':
+                    matchesCompetition = Boolean(team.isInSuperCup);
+                    break;
+            }
 
             const matchesSearch = team.name
                 .toLowerCase()
                 .includes(searchQuery.toLowerCase().trim());
 
-            return matchesLeague && matchesSearch;
+            return matchesCompetition && matchesSearch;
         });
-    }, [teams, selectedLeague, searchQuery]);
+    }, [teams, competition, searchQuery]);
+
+    const getCompetitionName = (type: CompetitionType) => {
+        switch (type) {
+            case 'league1': return 'I Liga';
+            case 'league2': return 'II Liga';
+            case 'cup': return 'Puchar Ligi';
+            case 'cupElim': return 'Puchar Ligi - Eliminacje';
+            case 'superCup': return 'SuperPuchar';
+        }
+    };
 
     const handleTeamClick = (team: Team) => {
         setSelectedTeam(team);
@@ -78,11 +108,7 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
     };
 
     if (isLoading) {
-        return (
-            <div className="card loading-state">
-                <p>Pobieranie aktywnych drużyn z serwera...</p>
-            </div>
-        );
+        return <div className="card loading-state"><p>Pobieranie aktywnych drużyn z serwera...</p></div>;
     }
 
     if (error) {
@@ -95,30 +121,35 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
     }
 
     return (
-        <div className="card flashscore-card">
+        <div className="card flashscore-card" style={{ position: 'relative' }}>
 
-            {/* Przełącznik Lig (Tabs / Przyciski) */}
-            <div className="league-tabs" style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
-                <button
-                    type="button"
-                    className={`submit-btn ${selectedLeague === 1 ? '' : 'secondary-btn'}`}
-                    style={{ flex: 1, opacity: selectedLeague === 1 ? 1 : 0.6 }}
-                    onClick={() => { setSelectedLeague(1); setSelectedTeam(null); }}
-                >
-                    I Liga
-                </button>
-                <button
-                    type="button"
-                    className={`submit-btn ${selectedLeague === 2 ? '' : 'secondary-btn'}`}
-                    style={{ flex: 1, opacity: selectedLeague === 2 ? 1 : 0.6 }}
-                    onClick={() => { setSelectedLeague(2); setSelectedTeam(null); }}
-                >
-                    II Liga
-                </button>
+            {/* Flashscore Style Header Bar */}
+            <div
+                onClick={() => setIsMenuOpen(true)}
+                style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px 16px',
+                    background: '#1e1e1e',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    marginBottom: '15px',
+                    border: '1px solid #333',
+                    transition: 'border-color 0.2s'
+                }}
+            >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '16px' }}>🏐</span>
+                    <span style={{ fontWeight: 600, fontSize: '15px', color: '#fff' }}>
+                        {getCompetitionName(competition)}
+                    </span>
+                </div>
+                <span style={{ fontSize: '12px', color: '#aaa', transform: isMenuOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>▼</span>
             </div>
 
             {/* Wyszukiwarka */}
-            <div className="search-box">
+            <div className="search-box" style={{ marginBottom: '15px' }}>
                 <input
                     type="text"
                     placeholder="Szukaj drużyny..."
@@ -154,12 +185,12 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                         );
                     })
                 ) : (
-                    <div className="empty-state">Brak drużyn w tej lidze dla podanej frazy.</div>
+                    <div className="empty-state">Brak drużyn w tej kategorii dla podanej frazy.</div>
                 )}
             </div>
 
             {/* Przycisk akcji */}
-            <div className="action-footer">
+            <div className="action-footer" style={{ marginTop: '15px' }}>
                 <button
                     type="button"
                     className="submit-btn"
@@ -169,6 +200,80 @@ export default function TeamSelection({ onSelectTeam, selectedTeamId }: TeamSele
                     {selectedTeam ? `Pobierz mecze dla: ${selectedTeam.name}` : 'Wybierz drużynę'}
                 </button>
             </div>
+
+            {/* Flashscore Style Bottom Sheet / Overlay Menu */}
+            {isMenuOpen && (
+                <div
+                    onClick={() => setIsMenuOpen(false)}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        background: 'rgba(0, 0, 0, 0.7)',
+                        zIndex: 1000,
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'flex-end',
+                        animation: 'fadeIn 0.2s ease-out'
+                    }}
+                >
+                    <div
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            background: '#18181b',
+                            borderTopLeftRadius: '16px',
+                            borderTopRightRadius: '16px',
+                            padding: '20px',
+                            maxHeight: '70vh',
+                            overflowY: 'auto',
+                            borderTop: '1px solid #333'
+                        }}
+                    >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                            <h3 style={{ margin: 0, fontSize: '16px', color: '#fff' }}>Wybierz rozgrywki</h3>
+                            <button
+                                onClick={() => setIsMenuOpen(false)}
+                                style={{ background: 'none', border: 'none', color: '#888', fontSize: '18px', cursor: 'pointer' }}
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {(['league1', 'league2', 'cup', 'cupElim', 'superCup'] as CompetitionType[]).map((type) => {
+                                const active = competition === type;
+                                return (
+                                    <div
+                                        key={type}
+                                        onClick={() => {
+                                            setCompetition(type);
+                                            setSelectedTeam(null);
+                                            setIsMenuOpen(false);
+                                        }}
+                                        style={{
+                                            padding: '12px 16px',
+                                            borderRadius: '8px',
+                                            background: active ? '#27272a' : 'transparent',
+                                            color: active ? '#3b82f6' : '#e4e4e7',
+                                            fontWeight: active ? 600 : 400,
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'space-between',
+                                            border: active ? '1px solid #3f3f46' : '1px solid transparent'
+                                        }}
+                                    >
+                                        <span>{getCompetitionName(type)}</span>
+                                        {active && <span>✓</span>}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

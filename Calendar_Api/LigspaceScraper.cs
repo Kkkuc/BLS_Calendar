@@ -82,18 +82,40 @@ public partial class LigspaceScraper(HttpClient httpClient)
 
     public async Task<List<TeamDto>> FetchAllTeamsAsync()
     {
+        // 1. Pobieramy I i II ligę jako główny pień bazowy
         var league1Url = $"{BaseUrl}?mod=Classifications&ac=Browse&season=82&league=162";
         var league2Url = $"{BaseUrl}?mod=Classifications&ac=Browse&season=82&league=163";
 
         var task1 = FetchTeamsFromLeagueAsync(1, league1Url);
         var task2 = FetchTeamsFromLeagueAsync(2, league2Url);
-
         await Task.WhenAll(task1, task2);
 
-        var allTeams = task1.Result.Concat(task2.Result).ToList();
+        // Tworzymy słownik ID -> TeamDto, żeby zarządzać flagami bez duplikowania obiektów
+        var teamsDict = task1.Result.Concat(task2.Result).ToDictionary(t => t.Id);
 
-        // Fetch logos in parallel for all discovered teams
-        var logoTasks = allTeams.Select(async team =>
+        // 2. Metoda pomocnicza do oznaczania flag dla pucharów na podstawie istniejących ID
+        async Task MarkTournamentTeamsAsync(string url, Func<TeamDto, TeamDto> updateAction)
+        {
+            var cupTeams = await FetchTeamsFromLeagueAsync(0, url);
+            foreach (var ct in cupTeams)
+            {
+                if (teamsDict.TryGetValue(ct.Id, out var existingTeam))
+                {
+                    teamsDict[ct.Id] = updateAction(existingTeam);
+                }
+            }
+        }
+
+        // 3. Sprawdzamy puchary i nadpisujemy odpowiednie flagi
+        // league=164: Puchar Ligi Eliminacje
+        await MarkTournamentTeamsAsync($"{BaseUrl}?mod=Classifications&ac=Browse&season=82&league=164", t => t with { IsInCupElim = true });
+        // league=165: SuperPuchar
+        await MarkTournamentTeamsAsync($"{BaseUrl}?mod=Classifications&ac=Browse&season=82&league=165", t => t with { IsInSuperCup = true });
+        // league=166: Puchar Ligi
+        await MarkTournamentTeamsAsync($"{BaseUrl}?mod=Classifications&ac=Browse&season=82&league=166", t => t with { IsInCup = true });
+
+        // 4. Pobieramy loga równolegle dla unikalnych drużyn ze słownika
+        var logoTasks = teamsDict.Values.Select(async team =>
         {
             try
             {
