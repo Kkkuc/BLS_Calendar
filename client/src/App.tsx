@@ -1,8 +1,8 @@
 import {useState, useEffect} from 'react';
 import type {Team} from './types';
 import type {MatchDto} from './types/match';
-import TeamSelection from './components/TeamSelection';
-import {MatchList} from './components/MatchList';
+import TeamSelection from './components/TeamSelection/TeamSelection.tsx';
+import {MatchList} from './components/MatchList/MatchList.tsx';
 import {ExportConfirmModal, type ExportSummaryData} from './components/ExportConfirmModal';
 import {ExportSummaryModal} from './components/ExportSummaryModal';
 import './App.css';
