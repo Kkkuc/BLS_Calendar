@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import type { MatchDto } from '../types/match';
 import { apiFetch } from '../services/api.ts';
+import styles from './Modal.module.css';
 
 export interface ExportSummaryData {
     added: number;
@@ -13,7 +14,6 @@ interface ExportConfirmModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: (data: ExportSummaryData) => void;
-    
 }
 
 export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
@@ -101,36 +101,36 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
     };
 
     return (
-        <div className="modal-overlay">
-            <div className="card modal-card">
-                <div className="modal-header">
-                    <h3 className="modal-title">Eksport do Google Calendar</h3>
+        <div className={styles.overlay}>
+            <div className={styles.modalCard}>
+                <div className={styles.header}>
+                    <h3 className={styles.title}>Eksport do Google Calendar</h3>
                     <button
                         type="button"
                         onClick={handleClose}
-                        className="modal-close-btn"
+                        className={styles.closeBtn}
                         title="Zamknij"
                     >
                         ✕
                     </button>
                 </div>
 
-                <p className="modal-description">
-                    Zamierzasz dodać <strong className="text-accent">{matches.length}</strong> mecz(e) do swojego kalendarza:
+                <p className={styles.description}>
+                    Zamierzasz dodać <strong className={styles.textAccent}>{matches.length}</strong> mecz(e) do swojego kalendarza:
                 </p>
 
-                <div className="modal-matches-list scrollable-matches-list">
+                <div className={styles.matchesList}>
                     {matches.map((match, idx) => {
                         const host = match.host || (match as any).Host || 'Gospodarz';
                         const guest = match.guest || (match as any).Guest || 'Gość';
                         const rawDate = match.matchDate || (match as any).MatchDate;
 
                         return (
-                            <div key={idx} className="match-card-item unclickable modal-match-item">
-                                <span className="match-teams">
-                                    {host} <span className="text-muted">vs</span> {guest}
+                            <div key={idx} className={styles.matchItem}>
+                                <span className={styles.matchTeams}>
+                                    {host} <span className={styles.textMuted}>vs</span> {guest}
                                 </span>
-                                <span className="match-date">
+                                <span className={styles.matchDate}>
                                     {formatDate(rawDate)}
                                 </span>
                             </div>
@@ -139,22 +139,22 @@ export const ExportConfirmModal: React.FC<ExportConfirmModalProps> = ({
                 </div>
 
                 {error && (
-                    <div className="card error-state modal-error">
+                    <div className={styles.errorState}>
                         {error}
                     </div>
                 )}
 
-                <div className="modal-actions">
+                <div className={styles.actionsRow}>
                     <button
                         type="button"
-                        className="tab-button modal-cancel-btn"
+                        className={styles.cancelBtn}
                         onClick={handleClose}
                     >
                         Anuluj
                     </button>
                     <button
                         type="button"
-                        className="submit-btn modal-submit-btn"
+                        className={styles.submitBtn}
                         onClick={handleConfirm}
                         disabled={isExporting}
                     >

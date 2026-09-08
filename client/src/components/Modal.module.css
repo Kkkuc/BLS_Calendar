@@ -1,0 +1,211 @@
+/* Modal.module.css */
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+.modalCard {
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    animation: modalFadeIn 0.2s ease-out;
+}
+
+.modalCard.centered {
+    text-align: center;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+}
+
+.closeBtn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    border-radius: var(--radius-sm);
+    transition: color 0.15s ease;
+}
+
+.closeBtn:hover {
+    color: var(--text-primary);
+}
+
+.description {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+}
+
+.textAccent {
+    color: var(--accent-color);
+    font-weight: bold;
+}
+
+.textMuted {
+    color: var(--text-muted);
+}
+
+.matchesList {
+    max-height: 220px;
+    margin-bottom: 1rem;
+    background: var(--bg-element);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 8px;
+    overflow-y: auto;
+}
+
+.matchItem {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    margin-bottom: 6px;
+}
+
+.matchItem:last-child {
+    margin-bottom: 0;
+}
+
+.matchTeams {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.matchDate {
+    color: var(--text-muted);
+}
+
+.errorState {
+    margin-bottom: 1rem;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid #ef4444;
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.actionsRow {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.actionsColumn {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.cancelBtn {
+    flex: 0 0 auto;
+    padding: 10px 16px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.cancelBtn:hover {
+    background: var(--bg-element);
+}
+
+.submitBtn {
+    flex: 1;
+    padding: 14px;
+    background: var(--accent-color);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.submitBtn:disabled {
+    background: var(--bg-element);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+/* Style specyficzne dla podsumowania (Summary) */
+.summaryIcon {
+    font-size: 2.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.summaryTitle {
+    text-align: center;
+    margin-bottom: 0.25rem;
+}
+
+.summaryTag {
+    background-color: #10b981;
+    color: white;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+}
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+}
