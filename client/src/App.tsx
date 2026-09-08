@@ -76,12 +76,14 @@ export default function App() {
                         {selectedTeam ? (
                             <button
                                 onClick={() => handleSelectTeam(null)}
-                                className="tab-button active back-navbar-btn"
+                                className="navbar-brand-item back-navbar-btn"
                             >
                                 ← Wybór drużyny
                             </button>
                         ) : (
-                            <span className="navbar-title">Wybór drużyny</span>
+                            <span className="navbar-brand-item navbar-title">
+            Wybór drużyny
+        </span>
                         )}
 
                         <a

@@ -99,10 +99,26 @@ body.modal-open {
 }
 
 .navbar-title {
-  font-weight: 700;
-  font-size: 1.1rem;
   color: var(--text-primary);
   letter-spacing: 1px;
+  background: transparent;
+  border: 1px solid transparent; /* Rezerwuje miejsce na ramkę przycisku */
+}
+
+.navbar-brand-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 8px 14px;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  box-sizing: border-box;
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 .navbar-actions {
@@ -113,11 +129,15 @@ body.modal-open {
 
 /* Przycisk wyboru drużyny w Navbarze */
 .back-navbar-btn {
-  margin-left: 0;
-  padding: 6px 14px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  white-space: nowrap;
+  background: var(--accent-color);
+  color: #ffffff;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.back-navbar-btn:hover {
+  background: var(--accent-hover);
 }
 
 .secondary-link {
