@@ -178,7 +178,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.7);
+    background: var(--bg-overlay);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -187,13 +187,13 @@
 }
 
 .sheetContent {
-    background: #18181b;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
     padding: 20px;
     max-height: 70vh;
     overflow-y: auto;
-    border-top: 1px solid #333;
 }
 
 .sheetHeader {
@@ -205,16 +205,20 @@
 
 .sheetTitle {
     margin: 0;
-    font-size: 16px;
-    color: #fff;
+    font-size: 1rem;
+    color: var(--text-primary);
 }
 
 .closeBtn {
     background: none;
     border: none;
-    color: #888;
+    color: var(--text-muted);
     font-size: 18px;
     cursor: pointer;
+}
+
+.closeBtn:hover {
+    color: var(--text-primary);
 }
 
 .competitionList {
@@ -225,27 +229,29 @@
 
 .competitionOption {
     padding: 12px 16px;
-    border-radius: 8px;
-    background: transparent;
-    color: #e4e4e7;
+    border-radius: var(--radius-md);
+    background: var(--bg-element);
+    color: var(--text-secondary);
     font-weight: 400;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border: 1px solid transparent;
+    border: 1px solid var(--border-color);
     transition: background 0.15s;
 }
 
 .competitionOption:hover {
-    background: #27272a;
+    background: var(--bg-element-hover);
+    color: var(--text-primary);
+    border-color: var(--border-focus);
 }
 
 .competitionOption.active {
-    background: #27272a;
-    color: #3b82f6;
+    background: var(--bg-element-active);
+    color: var(--accent-color);
     font-weight: 600;
-    border: 1px solid #3f3f46;
+    border-color: var(--accent-color);
 }
 
 @keyframes fadeIn {

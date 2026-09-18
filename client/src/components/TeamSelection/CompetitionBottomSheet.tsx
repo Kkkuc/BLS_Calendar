@@ -1,6 +1,7 @@
+import ReactDOM from 'react-dom';
+import type {CompetitionType} from '../../types/competition';
+import {COMPETITIONS} from '../../types/competition';
 import styles from './TeamSelection.module.css';
-
-export type CompetitionType = 'league1' | 'league2' | 'cup' | 'cupElim' | 'superCup';
 
 interface Props {
     isOpen: boolean;
@@ -11,8 +12,6 @@ interface Props {
     getCompetitionEmoji: (type: CompetitionType) => string;
 }
 
-const COMPETITIONS: CompetitionType[] = ['league1', 'league2', 'cup', 'cupElim', 'superCup'];
-
 export function CompetitionBottomSheet({
                                            isOpen,
                                            onClose,
@@ -22,8 +21,7 @@ export function CompetitionBottomSheet({
                                            getCompetitionEmoji
                                        }: Props) {
     if (!isOpen) return null;
-
-    return (
+    return ReactDOM.createPortal(
         <div className={styles.overlay} onClick={onClose}>
             <div className={styles.sheetContent} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.sheetHeader}>
@@ -39,8 +37,8 @@ export function CompetitionBottomSheet({
                                 onClick={() => onSelect(type)}
                                 className={`${styles.competitionOption} ${active ? styles.active : ''}`}
                             >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <span style={{ fontSize: '18px' }}>{getCompetitionEmoji(type)}</span>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '10px'}}>
+                                    <span style={{fontSize: '18px'}}>{getCompetitionEmoji(type)}</span>
                                     <span>{getCompetitionName(type)}</span>
                                 </div>
                                 {active && <span>✓</span>}
@@ -49,6 +47,7 @@ export function CompetitionBottomSheet({
                     })}
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }
