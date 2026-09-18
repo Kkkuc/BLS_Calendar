@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import type { MatchDto } from '../../types/match';
-import type { Team } from '../../types';
-import { apiFetch } from '../../services/api.ts';
-import { TeamHeader } from './TeamHeader';
-import { MatchColumn } from './MatchColumn';
+import React, {useEffect, useState} from 'react';
+import type {MatchDto} from '../../types/match';
+import type {Team} from '../../types';
+import {apiFetch} from '../../services/api.ts';
+import {TeamHeader} from './TeamHeader';
+import {MatchColumn} from './MatchColumn';
 import styles from './MatchList.module.css';
 
 interface MatchListProps {
@@ -12,7 +12,7 @@ interface MatchListProps {
     onExportSelected?: (selectedMatches: MatchDto[]) => void;
 }
 
-export const MatchList: React.FC<MatchListProps> = ({ team, onBack, onExportSelected }) => {
+export const MatchList: React.FC<MatchListProps> = ({team, onBack, onExportSelected}) => {
     const [allMatches, setAllMatches] = useState<MatchDto[]>([]);
     const [selectedMatches, setSelectedMatches] = useState<MatchDto[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -84,14 +84,16 @@ export const MatchList: React.FC<MatchListProps> = ({ team, onBack, onExportSele
             minute: '2-digit',
         });
     };
-
-    if (!team) return <div className="card text-center">Wybierz drużynę.</div>;
-    if (loading) return <div className="card loading-state"><p>Ładowanie terminarza...</p></div>;
-    if (error) return <div className="card error-state"><p>{error}</p>{onBack && <button onClick={onBack}>🔄 Zmień</button>}</div>;
+    
+    if (!team) return <div className={`card ${styles.matchListContainer} text-center`}>Wybierz drużynę.</div>;
+    if (loading) return <div className={`card ${styles.matchListContainer} ${styles.loadingState}`}><p>Ładowanie
+        terminarza...</p></div>;
+    if (error) return <div className={`card ${styles.matchListContainer} ${styles.errorState}`}><p>{error}</p>{onBack &&
+        <button onClick={onBack}>🔄 Zmień</button>}</div>;
 
     return (
         <div className={`card ${styles.matchListContainer}`}>
-            <TeamHeader team={team} />
+            <TeamHeader team={team}/>
 
             <div className={styles.matchesGrid}>
                 <MatchColumn

@@ -1,15 +1,16 @@
 .card {
-    background: repeating-linear-gradient(
-            135deg,
-            var(--bg-card) 0px,
-            rgba(255, 255, 255, 0.025) 100px,
-            var(--bg-card) 1000px
-    ),
-    linear-gradient(135deg, var(--bg-card) 0%, rgba(35, 37, 48, 0.9) 50%);
+    background:
+            repeating-linear-gradient(
+                    135deg,
+                    var(--bg-card) 0px,
+                    var(--bg-element) 100px,
+                    var(--bg-card) 1000px
+            ),
+            linear-gradient(135deg, var(--bg-card) 0%, var(--bg-main) 100%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: 1.25rem;
-    box-shadow: var(--shadow-main);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
     position: relative;
 }
 
@@ -41,7 +42,7 @@
     background: linear-gradient(180deg, var(--bg-element-active) 0%, var(--bg-element-hover) 100%);
     border-color: var(--border-focus);
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .competitionBtn:active {
@@ -57,12 +58,13 @@
 .searchBox input {
     width: 100%;
     padding: 12px 14px;
-    background: repeating-linear-gradient(
-            -45deg,
-            var(--bg-main) 0px,
-            rgba(255, 255, 255, 0.02) 400px,
-            var(--bg-main) 800px
-    );
+    background:
+            repeating-linear-gradient(
+                    -45deg,
+                    var(--bg-main) 0px,
+                    var(--bg-card) 400px,
+                    var(--bg-main) 800px
+            );
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-primary);
@@ -81,12 +83,13 @@
 
 .searchBox input:focus {
     outline: none;
-    background: repeating-linear-gradient(
-            -45deg,
-            var(--bg-card) 0px,
-            rgba(100, 108, 255, 0.04) 300px,
-            var(--bg-card) 800px
-    );
+    background:
+            repeating-linear-gradient(
+                    -45deg,
+                    var(--bg-card) 0px,
+                    rgba(100, 108, 255, 0.04) 300px,
+                    var(--bg-card) 800px
+            );
     border-color: var(--border-focus);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(100, 108, 255, 0.08);
 }
@@ -119,7 +122,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 14px;
-    background: linear-gradient(180deg, var(--bg-card), rgba(30, 32, 42, 0.6));
+    background: linear-gradient(180deg, var(--bg-card), var(--bg-element));
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     cursor: pointer;
@@ -128,14 +131,14 @@
 }
 
 .teamItem:hover {
-    background: linear-gradient(180deg, var(--bg-element-hover), var(--bg-element));
+    background: linear-gradient(180deg, var(--bg-element-hover), var(--bg-card));
     border-color: var(--border-focus);
     transform: translateY(-2px);
 }
 
 .teamItem.selected {
     border-color: var(--accent-color);
-    background: linear-gradient(180deg, var(--bg-element-active), var(--bg-element));
+    background: linear-gradient(180deg, var(--bg-element-active), var(--bg-card));
     box-shadow: 0 0 15px rgba(100, 108, 255, 0.15), inset 0 0 0 1px var(--accent-color);
     transform: translateY(0);
 }
@@ -153,7 +156,7 @@
     height: 32px;
     object-fit: contain;
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-main);
     flex-shrink: 0;
 }
 
@@ -229,6 +232,7 @@
     right: 0;
     bottom: 0;
     background: var(--bg-overlay);
+    backdrop-filter: blur(6px);
     z-index: 1000;
     display: flex;
     flex-direction: column;
@@ -237,19 +241,21 @@
 }
 
 .sheetContent {
-    background: repeating-linear-gradient(
-            135deg,
-            var(--bg-card) 0px,
-            rgba(255, 255, 255, 0.08) 50px,
-            var(--bg-card) 1000px
-    ),
-    linear-gradient(135deg, var(--bg-card) 0%, rgba(35, 37, 48, 0.98) 100%);
+    background:
+            repeating-linear-gradient(
+                    135deg,
+                    var(--bg-card) 0px,
+                    var(--bg-element) 100px,
+                    var(--bg-card) 1000px
+            ),
+            linear-gradient(135deg, var(--bg-card) 0%, var(--bg-main) 100%);
     border: 1px solid var(--border-color);
     border-top-left-radius: var(--radius-lg);
     border-top-right-radius: var(--radius-lg);
     padding: 20px;
     max-height: 70vh;
     overflow-y: auto;
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
 }
 
 .sheetHeader {
@@ -257,24 +263,36 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
 }
 
 .sheetTitle {
     margin: 0;
     font-size: 1rem;
     color: var(--text-primary);
+    font-weight: 700;
 }
 
 .closeBtn {
-    background: none;
-    border: none;
+    background: var(--bg-element);
+    border: 1px solid var(--border-color);
     color: var(--text-muted);
-    font-size: 18px;
+    font-size: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
 }
 
 .closeBtn:hover {
+    background: var(--bg-element-hover);
     color: var(--text-primary);
+    border-color: var(--border-focus);
 }
 
 .competitionList {
@@ -286,7 +304,7 @@
 .competitionOption {
     padding: 12px 16px;
     border-radius: var(--radius-md);
-    background: linear-gradient(180deg, var(--bg-element), rgba(0, 0, 0, 0.1));
+    background: linear-gradient(180deg, var(--bg-element), var(--bg-card));
     color: var(--text-secondary);
     font-weight: 400;
     cursor: pointer;
@@ -294,20 +312,22 @@
     align-items: center;
     justify-content: space-between;
     border: 1px solid var(--border-color);
-    transition: background 0.15s;
+    transition: all 0.15s ease;
 }
 
 .competitionOption:hover {
     background: linear-gradient(180deg, var(--bg-element-hover), var(--bg-element));
     color: var(--text-primary);
     border-color: var(--border-focus);
+    transform: translateY(-1px);
 }
 
 .competitionOption.active {
-    background: linear-gradient(180deg, var(--bg-element-active), var(--bg-element));
+    background: linear-gradient(180deg, var(--bg-element-active), var(--bg-card));
     color: var(--accent-color);
     font-weight: 600;
     border-color: var(--accent-color);
+    box-shadow: 0 0 12px rgba(100, 108, 255, 0.12), inset 0 0 0 1px var(--accent-color);
 }
 
 @keyframes fadeIn {
