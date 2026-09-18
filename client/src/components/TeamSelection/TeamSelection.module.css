@@ -64,7 +64,7 @@
     grid-template-columns: 1fr;
     gap: 10px;
     margin-bottom: 1.25rem;
-    padding-right: 4px;
+    padding-top: 2px;
 }
 
 @media (min-width: 768px) {
@@ -84,7 +84,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px 14px;
-    background: var(--bg-element);
+    background: linear-gradient(180deg, var(--bg-element), rgba(0, 0, 0, 0.1));
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     cursor: pointer;
@@ -93,8 +93,9 @@
 }
 
 .teamItem:hover {
-    background: var(--bg-element-hover);
+    background: linear-gradient(180deg, var(--bg-element-hover), var(--bg-element));
     border-color: var(--border-focus);
+    transform: translateY(-2px);
 }
 
 .teamItem.selected {
