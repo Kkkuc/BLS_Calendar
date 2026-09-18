@@ -3,8 +3,13 @@
     flex-direction: column;
     height: 100%;
     box-sizing: border-box;
-
-    background: var(--bg-card);
+    background: repeating-linear-gradient(
+            135deg,
+            var(--bg-card) 0px,
+            rgba(255, 255, 255, 0.025) 100px,
+            var(--bg-card) 1000px
+    ),
+    linear-gradient(135deg, var(--bg-card) 0%, rgba(35, 37, 48, 0.9) 50%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: 1.25rem;
@@ -17,7 +22,7 @@
     gap: 16px;
     padding: 14px 16px;
     margin-bottom: 0.75rem;
-    background: var(--bg-element);
+    background: linear-gradient(300deg, var(--bg-element), rgba(0, 0, 0, 0.15));
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     flex-shrink: 0;
@@ -69,6 +74,7 @@
     background: var(--bg-element-hover);
     color: var(--accent-color);
     border-color: var(--border-focus);
+    transform: translateY(-1px);
 }
 
 .matchesGrid {
@@ -88,7 +94,7 @@
 }
 
 .matchesColumn {
-    background: var(--bg-element);
+    background: linear-gradient(180deg, var(--bg-element), rgba(0, 0, 0, 0.1));
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 10px;
@@ -132,10 +138,11 @@
     flex-direction: column;
     gap: 8px;
     padding-right: 4px;
+    padding-top: 1px;
 }
 
 .matchCardItem {
-    background: var(--bg-card);
+    background: linear-gradient(180deg, var(--bg-card), rgba(30, 32, 42, 0.6));
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 10px;
@@ -145,19 +152,24 @@
 
 .matchCardItem:hover {
     border-color: var(--border-focus);
+    background: linear-gradient(180deg, var(--bg-element-hover), var(--bg-card));
+    transform: translateY(-1px);
 }
 
 .matchCardItem.selected {
     border-color: var(--accent-color);
-    background: var(--bg-element-active);
+    background: linear-gradient(180deg, var(--bg-element-active), var(--bg-card));
+    box-shadow: 0 0 12px rgba(100, 108, 255, 0.12), inset 0 0 0 1px var(--accent-color);
 }
 
 .matchCardItem.unclickable {
+    background: linear-gradient(180deg, var(--bg-card), rgba(30, 32, 42, 0.6));
     cursor: default;
 }
 
 .matchCardItem.unclickable:hover {
     border-color: var(--border-color);
+    transform: none;
 }
 
 .matchCardTop {
@@ -202,7 +214,7 @@
 
 .matchCourt {
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: var(--text-primary);
 }
 
 .scoreTag {
@@ -232,7 +244,7 @@
 .submitBtn {
     width: 100%;
     padding: 14px;
-    background: var(--accent-color);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 85%, white) 0%, var(--accent-color) 100%);
     color: #ffffff;
     border: none;
     border-radius: var(--radius-md);
@@ -240,6 +252,12 @@
     font-weight: 700;
     cursor: pointer;
     transition: background 0.2s ease;
+    box-shadow: 0 4px 14px rgba(100, 108, 255, 0.35);
+}
+
+.submitBtn:hover:not(:disabled) {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-hover) 90%, white) 0%, var(--accent-hover) 100%);
+    box-shadow: 0 6px 20px rgba(100, 108, 255, 0.5);
 }
 
 .submitBtn:disabled {
