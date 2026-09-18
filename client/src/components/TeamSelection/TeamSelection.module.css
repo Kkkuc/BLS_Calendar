@@ -1,5 +1,12 @@
 .card {
-    background: var(--bg-card);
+    background:
+            repeating-linear-gradient(
+                    135deg,
+                    var(--bg-card) 0px,
+                    rgba(255, 255, 255, 0.025) 100px,
+                    var(--bg-card) 2000px
+            ),
+            linear-gradient(135deg, var(--bg-card) 0%, rgba(35, 37, 48, 0.9) 100%);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
     padding: 1.25rem;
@@ -18,21 +25,29 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 10px 14px;
-    background: var(--bg-element);
+    gap: 8px;
+    padding: 0 16px;
+    background: linear-gradient(180deg, var(--bg-element-hover) 0%, var(--bg-element) 100%);
     border-radius: var(--radius-md);
     cursor: pointer;
     border: 1px solid var(--border-color);
     color: var(--text-primary);
     white-space: nowrap;
     height: 44px;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .competitionBtn:hover {
-    background: var(--bg-element-hover);
+    background: linear-gradient(180deg, var(--bg-element-active) 0%, var(--bg-element-hover) 100%);
     border-color: var(--border-focus);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.competitionBtn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .searchBox {
@@ -43,17 +58,40 @@
 .searchBox input {
     width: 100%;
     padding: 12px 14px;
-    background: var(--bg-element);
+    background:
+            repeating-linear-gradient(
+                    -45deg,
+                    var(--bg-main) 0px,
+                    rgba(255, 255, 255, 0.02) 400px,
+                    var(--bg-main) 800px
+            );
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     color: var(--text-primary);
     font-size: 0.9rem;
     box-sizing: border-box;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.searchBox input::placeholder {
+    color: var(--text-muted);
+}
+
+.searchBox input:hover {
+    border-color: var(--border-focus);
 }
 
 .searchBox input:focus {
     outline: none;
+    background:
+            repeating-linear-gradient(
+                    -45deg,
+                    var(--bg-card) 0px,
+                    rgba(100, 108, 255, 0.04) 300px,
+                    var(--bg-card) 800px
+            );
     border-color: var(--border-focus);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1), 0 0 0 3px rgba(100, 108, 255, 0.08);
 }
 
 .teamList {
@@ -100,7 +138,9 @@
 
 .teamItem.selected {
     border-color: var(--accent-color);
-    background: var(--bg-element-active);
+    background: linear-gradient(180deg, var(--bg-element-active), var(--bg-element));
+    box-shadow: 0 0 15px rgba(100, 108, 255, 0.15), inset 0 0 0 1px var(--accent-color);
+    transform: translateY(0);
 }
 
 .teamInfo {
@@ -148,7 +188,7 @@
 .submitBtn {
     width: 100%;
     padding: 14px;
-    background: var(--accent-color);
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 85%, white) 0%, var(--accent-color) 100%);
     color: #ffffff;
     border: none;
     border-radius: var(--radius-md);
@@ -156,6 +196,15 @@
     font-weight: 700;
     cursor: pointer;
     transition: background 0.2s ease;
+    box-shadow: 0 4px 14px rgba(100, 108, 255, 0.35);
+}
+.submitBtn:hover:not(:disabled) {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-hover) 90%, white) 0%, var(--accent-hover) 100%);
+    box-shadow: 0 6px 20px rgba(100, 108, 255, 0.5); 
+}
+
+.submitBtn:active:not(:disabled) {
+    box-shadow: 0 2px 8px rgba(100, 108, 255, 0.3);
 }
 
 .submitBtn:disabled {
@@ -163,6 +212,8 @@
     color: var(--text-muted);
     cursor: not-allowed;
     border: 1px solid var(--border-color);
+    box-shadow: none;
+    transform: none;
 }
 
 .emptyState, .loadingState, .errorState {
