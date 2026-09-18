@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { Team } from '../../types'; // dostosuj ścieżkę do types
+import type { Team } from '../../types';
+import type { CompetitionType } from '../../types/competition';
 import { apiFetch } from '../../services/api.ts';
-import { CompetitionBottomSheet, type CompetitionType } from './CompetitionBottomSheet';
+import { CompetitionBottomSheet } from './CompetitionBottomSheet';
 import styles from './TeamSelection.module.css';
 
 interface TeamSelectionProps {
