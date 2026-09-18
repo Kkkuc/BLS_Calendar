@@ -73,7 +73,14 @@ body.modal-open {
 /* Pasek Górny (Navbar) na pełną szerokość */
 .navbar {
   width: 100%;
-  background-color: var(--bg-card);
+  background:
+          repeating-linear-gradient(
+                  90deg,
+                  var(--bg-card) 0px,
+                  rgba(255, 255, 255, 0.02) 100px,
+                  var(--bg-card) 2000px
+          ),
+          linear-gradient(135deg, var(--bg-card) 0%, rgba(35, 37, 48, 0.95) 100%);
   border-bottom: 1px solid var(--border-color);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   position: sticky;
@@ -129,15 +136,14 @@ body.modal-open {
 
 /* Przycisk wyboru drużyny w Navbarze */
 .back-navbar-btn {
-  background: var(--accent-color);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent-color) 85%, white) 0%, var(--accent-color) 100%);
   color: #ffffff;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.2s ease;
 }
 
 .back-navbar-btn:hover {
-  background: var(--accent-hover);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent-hover) 90%, white) 0%, var(--accent-hover) 100%);
 }
 
 .secondary-link {
