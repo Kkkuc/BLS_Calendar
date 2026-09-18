@@ -22,14 +22,54 @@ export default function App() {
         return (localStorage.getItem('theme') as 'dark' | 'light') || 'dark';
     });
 
-    // Zapisywanie wybranej drużyny do sessionStorage przy każdej zmianie
-    const handleSelectTeam = (team: Team | null) => {
-        setSelectedTeam(team);
-        if (team) {
-            sessionStorage.setItem('selectedTeam', JSON.stringify(team));
+    // Synchronizacja historii przeglądarki (obsługa przycisku Wstecz / strzałki na telefonie)
+    useEffect(() => {
+        const handlePopState = (event: PopStateEvent) => {
+            const state = event.state;
+
+            if (!state) {
+                setSelectedTeam(null);
+                setExportStep('closed');
+                return;
+            }
+
+            setSelectedTeam(state.selectedTeam || null);
+            setExportStep(state.exportStep || 'closed');
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
+    // Pomocnicza funkcja do bezpiecznej zmiany stanu z jednoczesnym dodaniem wpisu do historii
+    const updateNavigationState = (newTeam: Team | null, newStep: 'closed' | 'confirm' | 'summary', push: boolean = true) => {
+        if (push) {
+            window.history.pushState(
+                {selectedTeam: newTeam, exportStep: newStep},
+                '',
+                newTeam ? `#team-${newTeam.id}` : window.location.pathname
+            );
+        }
+
+        setSelectedTeam(newTeam);
+        setExportStep(newStep);
+
+        if (newTeam) {
+            sessionStorage.setItem('selectedTeam', JSON.stringify(newTeam));
         } else {
             sessionStorage.removeItem('selectedTeam');
         }
+    };
+
+    // Inicjalny wpis w historii po załadowaniu, jeśli drużyna była już w session storage
+    useEffect(() => {
+        if (selectedTeam && window.history.state === null) {
+            window.history.replaceState({selectedTeam, exportStep}, '', `#team-${selectedTeam.id}`);
+        }
+    }, []);
+
+    const handleSelectTeam = (team: Team | null) => {
+        updateNavigationState(team, 'closed', true);
     };
 
     useEffect(() => {
@@ -53,19 +93,22 @@ export default function App() {
 
     const handleOpenExportModal = (matches: MatchDto[]) => {
         setMatchesToExport(matches);
-        setExportStep('confirm');
+        updateNavigationState(selectedTeam, 'confirm', true);
     };
 
     const handleExportSuccess = (data: ExportSummaryData) => {
         setSummaryData(data);
-        setExportStep('summary');
+        updateNavigationState(selectedTeam, 'summary', true);
+    };
+
+    const handleCloseModal = () => {
+        window.history.back();
     };
 
     const handleResetAll = () => {
-        setExportStep('closed');
         setSummaryData(null);
         setMatchesToExport([]);
-        handleSelectTeam(null);
+        updateNavigationState(null, 'closed', true);
     };
 
     return (
@@ -82,8 +125,8 @@ export default function App() {
                             </button>
                         ) : (
                             <span className="navbar-brand-item navbar-title">
-            Wybór drużyny
-        </span>
+                                Wybór drużyny
+                            </span>
                         )}
 
                         <a
@@ -135,15 +178,15 @@ export default function App() {
                 <ExportConfirmModal
                     isOpen={exportStep === 'confirm'}
                     matches={matchesToExport}
-                    onClose={() => setExportStep('closed')}
+                    onClose={handleCloseModal}
                     onSuccess={handleExportSuccess}
                 />
 
                 <ExportSummaryModal
                     isOpen={exportStep === 'summary'}
                     summary={summaryData}
-                    onClose={() => setExportStep('closed')}
-                    onRetry={() => setExportStep('confirm')}
+                    onClose={handleCloseModal}
+                    onRetry={() => updateNavigationState(selectedTeam, 'confirm', true)}
                     onResetTeamSelection={handleResetAll}
                 />
             </div>
